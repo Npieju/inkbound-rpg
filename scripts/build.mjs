@@ -1,0 +1,15 @@
+import { spawnSync } from 'node:child_process';
+import { mkdirSync, copyFileSync, readFileSync, writeFileSync } from 'node:fs';
+import { fileURLToPath } from 'node:url';
+import { resolve } from 'node:path';
+export const root = fileURLToPath(new URL('../', import.meta.url));
+export function build() {
+  const result = spawnSync(process.execPath, [resolve(root, 'node_modules/typescript/bin/tsc'), '-p', 'tsconfig.build.json'], { cwd: root, stdio: 'inherit' });
+  if (result.status !== 0) throw new Error('TypeScript build failed');
+  mkdirSync(resolve(root, 'dist'), { recursive: true });
+  copyFileSync(resolve(root, 'src/style.css'), resolve(root, 'dist/src/style.css'));
+  copyFileSync(resolve(root, 'public/icon.svg'), resolve(root, 'dist/icon.svg'));
+  writeFileSync(resolve(root, 'dist/index.html'), readFileSync(resolve(root, 'index.html'), 'utf8').replace('/src/main.ts', './src/main.js'));
+  console.log('Built dist/ (portable ES modules, no native tools).');
+}
+if (process.argv[1] && resolve(process.argv[1]) === fileURLToPath(import.meta.url)) build();
