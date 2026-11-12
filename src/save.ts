@@ -24,6 +24,8 @@ export function decodeSave(raw: string | null): Game | null {
     // Combat is atomic per click. Resume at camp to avoid trusting saved enemy parameters.
     if (g.phase === 'battle') { g.phase = 'camp'; g.log.unshift('戦闘を中断してキャンプに戻った。'); g.log = g.log.slice(0, 20); }
     g.enemy = null;
+    // Existing saves and interrupted battles return to the map, ready for a fresh encounter.
+    g.hp = derived(g).maxHp; g.sp = derived(g).maxSp;
     return g;
   } catch { return null; }
 }

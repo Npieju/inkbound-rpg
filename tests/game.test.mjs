@@ -1,6 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { act, allocate, buy, derived, equipSkill, ITEMS, learn, newGame, nextStage, rest, SKILLS, startBattle, statCost } from '../src/game.ts';
+import { act, allocate, buy, derived, equipSkill, ITEMS, learn, newGame, nextStage, SKILLS, startBattle, statCost } from '../src/game.ts';
 import { decodeSave, loadGame, saveGame } from '../src/save.ts';
 const noCrit = () => 0.5;
 
@@ -40,18 +40,35 @@ test('healing caps at max HP; charge modifies next attack only; ward expires', (
 test('three distinct encounters unlock boss; farming old encounters cannot skip progression', () => {
   const g = newGame(); assert.equal(startBattle(g, true), false); assert.equal(startBattle(g, false, 2), false);
   g.stats.atk = 100;
-  for (const encounter of [0, 0, 1, 2]) { rest(g); assert.ok(startBattle(g, false, encounter)); act(g, 'attack', noCrit); }
+  for (const encounter of [0, 0, 1, 2]) { assert.ok(startBattle(g, false, encounter)); act(g, 'attack', noCrit); }
   assert.equal(g.kills, 3); assert.equal(g.totalKills, 4); assert.equal(startBattle(g, true), true);
   act(g, 'attack', noCrit); assert.equal(g.phase, 'clear'); assert.equal(nextStage(g), true); assert.equal(g.stage, 1); assert.equal(g.kills, 0);
 });
-test('boss telegraph and guarding reduce damage; defeat retains resources and can recover', () => {
+test('boss telegraph and guarding reduce damage; defeat restores HP/SP without a rest action', () => {
   const a = newGame(); a.kills = 3; startBattle(a, true); a.enemy.turn = 2;
   const b = structuredClone(a);
   const guarded = act(a, 'guard', noCrit), unguarded = act(b, 'attack', noCrit);
   assert.equal(guarded.charged, true); assert.ok(guarded.enemyDamage < unguarded.enemyDamage);
   b.hp = 1; const gold = b.gold, xp = b.xp; act(b, 'guard', noCrit);
   assert.equal(b.phase, 'defeat'); assert.equal(b.gold, gold); assert.equal(b.xp, xp);
-  assert.equal(startBattle(b), false); assert.equal(rest(b), true); assert.equal(b.phase, 'camp'); assert.equal(b.sp, derived(b).maxSp);
+  assert.equal(b.hp, derived(b).maxHp); assert.equal(b.sp, derived(b).maxSp);
+  assert.equal(startBattle(b), true); assert.equal(b.phase, 'battle');
+});
+test('every normal victory restores HP and SP immediately, without consuming potions', () => {
+  const g = newGame(); learn(g, 'heavy'); startBattle(g);
+  g.hp = 7; g.sp = 3; g.enemy.hp = 1; const potions = g.potions;
+  act(g, 0, noCrit);
+  assert.equal(g.phase, 'victory'); assert.equal(g.hp, derived(g).maxHp); assert.equal(g.sp, derived(g).maxSp);
+  assert.equal(g.potions, potions); assert.equal(g.kills, 1);
+  assert.equal(startBattle(g), true); assert.equal(g.hp, derived(g).maxHp); assert.equal(g.sp, derived(g).maxSp);
+});
+test('boss victory, next-stage transition, and interrupted-save resume are ready for a full-health fight', () => {
+  const g = newGame(); g.kills = 3; learn(g, 'heavy'); startBattle(g, true);
+  g.hp = 5; g.sp = 3; g.enemy.hp = 1; act(g, 0, noCrit);
+  assert.equal(g.phase, 'clear'); assert.equal(g.hp, derived(g).maxHp); assert.equal(g.sp, derived(g).maxSp);
+  nextStage(g); startBattle(g); g.hp = 9; g.sp = 1;
+  const loaded = decodeSave(JSON.stringify(g));
+  assert.equal(loaded.phase, 'camp'); assert.equal(loaded.hp, derived(loaded).maxHp); assert.equal(loaded.sp, derived(loaded).maxSp);
 });
 test('shop handles balance, upgrade restrictions and potion cap', () => {
   const g = newGame(); assert.equal(buy(g, 'iron'), false); g.gold = 1000;
@@ -75,7 +92,6 @@ test('complete all four stages with earned XP, purchases and a real skill build'
   const g = newGame(); learn(g, 'heavy'); allocate(g, 'atk');
   let fights = 0, usedSkills = 0, defeats = 0;
   while (g.phase !== 'complete' && fights < 180) {
-    rest(g);
     // Invest earned resources; no gifted XP, gold, damage, or HP.
     for (const id of ['ward', 'mend', 'double', 'charge', 'finisher']) if (g.xp > (id === 'finisher' ? 150 : 60)) learn(g, id);
     for (const slot of ['weapon', 'armor']) {

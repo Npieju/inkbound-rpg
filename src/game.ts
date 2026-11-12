@@ -86,16 +86,12 @@ export function buy(g: Game, id: string): boolean {
   if (!next || g.gold < next.cost || next.tier <= item(g[next.slot]).tier) return false;
   g.gold -= next.cost; g[next.slot] = next.id; note(g, `${next.name}を購入して装備した。`); return true;
 }
-export function rest(g: Game): boolean {
-  if (g.phase === 'battle' || (g.hp >= derived(g).maxHp && g.sp >= derived(g).maxSp)) return false;
-  g.hp = derived(g).maxHp; g.sp = derived(g).maxSp; if (g.phase === 'defeat') g.phase = 'camp';
-  note(g, '焚き火でひと休み。HP・SPが全回復した。'); return true;
-}
 export function startBattle(g: Game, boss = false, encounter?: number): boolean {
   if (!['camp', 'victory', 'defeat'].includes(g.phase) || (boss && g.kills < 3) || g.hp <= 0) return false;
   const s = STAGES[g.stage];
   if (encounter !== undefined && (!Number.isInteger(encounter) || encounter < 0 || encounter > 2 || encounter > g.kills)) return false;
   const kind = encounter ?? Math.min(g.kills, 2);
+  g.hp = derived(g).maxHp; g.sp = derived(g).maxSp;
   const hp = Math.round(s.hp * (boss ? 2.65 : 1 + kind * 0.17));
   g.enemy = { name: boss ? s.boss : s.enemies[kind], hp, maxHp: hp,
     atk: Math.round(s.atk * (boss ? 1.35 : 1 + kind * 0.1)), boss, kind, turn: 0 };
@@ -110,6 +106,7 @@ export function nextStage(g: Game): boolean {
 function award(g: Game, e: Enemy) {
   const s = STAGES[g.stage], gold = s.gold * (e.boss ? 4 : 1), xp = s.xp * (e.boss ? 3 : 1);
   g.gold += gold; g.xp += xp; g.earnedXp += xp; g.totalKills++;
+  g.hp = derived(g).maxHp; g.sp = derived(g).maxSp;
   note(g, `${e.name}を倒した！ +${gold} G / +${xp} EXP`);
   if (e.boss) { g.phase = g.stage === STAGES.length - 1 ? 'complete' : 'clear'; g.hp = derived(g).maxHp; g.sp = derived(g).maxSp; }
   else { g.kills = Math.max(g.kills, e.kind + 1); g.phase = 'victory'; }
@@ -160,6 +157,9 @@ export function act(g: Game, action: Action, rng: () => number = Math.random): T
   e.turn++;
   if (g.ward > 0) g.ward--;
   if (g.hp > 0 && g.regen > 0) { heal(d.maxHp * 0.12); g.regen--; }
-  if (g.hp === 0) { g.phase = 'defeat'; note(g, '力尽きた…。焚き火で回復して再挑戦しよう。お金や経験値は失わない。'); }
+  if (g.hp === 0) {
+    g.phase = 'defeat'; g.hp = d.maxHp; g.sp = d.maxSp;
+    note(g, '敗北…。HP・SPは全回復。装備やスキルを見直して再挑戦しよう。');
+  }
   return r;
 }
