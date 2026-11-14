@@ -1,4 +1,4 @@
-import { act, allocate, buy, derived, equipSkill, item, ITEMS, learn, newGame, nextStage, rank, skill, SKILLS, statCost, STAGES, startBattle } from './game.ts';
+import { act, allocate, buy, derived, equip, encounterPreview, enemyHint, enemyStats, respec, selectTarget, statusLabels, equipSkill, item, ITEMS, learn, newGame, nextStage, rank, skill, SKILLS, statCost, STAGES, startBattle } from './game.ts';
 import type { Action, EquipmentSlot, Stat, TurnResult } from './game.ts';
 import { loadGame, saveGame } from './save.ts';
 import { fighter, scenery, swordIcon, shieldIcon } from './art.ts';
@@ -13,7 +13,8 @@ let skillView: 'tree' | 'loadout' = 'tree';
 let selectedSkill = 'heavy';
 let shopCategory: EquipmentSlot | 'items' = 'weapon';
 let battleMenu: BattleMenu = 'main';
-let modal: 'help' | 'reset' | 'log' | 'skill' | null = null;
+let modal: 'help' | 'reset' | 'log' | 'skill' | 'encounter' | 'respec' | null = null;
+let pendingEncounter = 0, pendingBoss = false;
 let busy = false, saved = true;
 let lastTurn: TurnResult | null = null;
 let effectTimer: ReturnType<typeof setTimeout>;
@@ -53,45 +54,47 @@ function mapHtml(): string {
 function battleHtml(): string {
   const g = game, e = g.enemy!;
   const lines = g.log.slice(0, 2).reverse();
-  return `<section class="battle-screen"><div class="battle-heading"><span class="eyebrow">${e.boss ? 'BOSS BATTLE' : `通常戦 ${e.kind + 1}`}</span><button class="text-button" data-do="log">記録 ↗</button></div><div class="enemy-hud"><p><strong>${e.name}</strong><span>${e.hp} / ${e.maxHp}</span></p>${meter(e.hp, e.maxHp, '敵のHP', 'enemy-hp')}</div><div class="combat-field" style="--stage-color:${STAGES[g.stage].color}">${scenery(g.stage)}<div class="fighter player ${busy && lastTurn?.playerDamage ? 'swing' : ''}">${fighter()}<div class="damage">${busy && lastTurn ? lastTurn.healed ? `+${lastTurn.healed}` : lastTurn.dodged ? '回避' : lastTurn.enemyDamage ? `−${lastTurn.enemyDamage}` : '' : ''}</div></div><div class="fighter enemy ${e.boss ? 'boss' : ''}">${fighter(true, e.boss, e.kind)}<div class="damage">${busy && lastTurn?.playerDamage ? `−${lastTurn.playerDamage}` : ''}</div></div><div class="battle-intent ${e.boss && e.turn % 3 === 2 ? 'warning' : ''}">${e.boss && e.turn % 3 === 2 ? '！次は大技。防御で備えよう' : '次の敵の行動：攻撃'}</div></div><div class="battle-effects">${g.ward ? `<span>◇ 障壁 ${g.ward}回</span>` : ''}${g.charge ? '<span>✦ 次の攻撃2倍</span>' : ''}${g.regen ? `<span>♧ 再生 ${g.regen}T</span>` : ''}</div><div class="turn-log" role="log" aria-live="polite">${lines.map(l => `<p>${esc(l)}</p>`).join('')}</div><section class="command-panel" aria-label="戦闘コマンド">${commandsHtml()}</section></section>`;
+  return `<section class="battle-screen"><div class="battle-heading"><span class="eyebrow">${g.enemies.some(f => f.boss) ? 'BOSS BATTLE' : '敵をタップして対象を選択'}</span><button class="text-button" data-do="log">記録 ↗</button></div><div class="enemy-targets">${g.enemies.map((f, i) => `<button data-target="${i}" aria-pressed="${g.target === i}" ${disabled(f.hp <= 0 || busy)}><strong>${f.name}</strong><span>${f.hp} / ${f.maxHp}</span>${meter(f.hp, f.maxHp, f.name + 'のHP', 'enemy-hp')}</button>`).join('')}</div><div class="combat-field" style="--stage-color:${STAGES[g.stage].color}">${scenery(g.stage)}<div class="fighter player ${busy && lastTurn?.playerDamage ? 'swing' : ''}">${fighter()}<div class="damage">${busy && lastTurn ? lastTurn.healed ? `+${lastTurn.healed}` : lastTurn.enemyDamage ? `−${lastTurn.enemyDamage}` : lastTurn.dodged ? '回避' : '' : ''}</div></div><div class="foe-group">${g.enemies.map((f, i) => `<div class="foe-figure ${f.hp <= 0 ? 'fallen' : ''} ${i === g.target ? 'selected' : ''}">${fighter(true, f.boss, f.kind)}</div>`).join('')}</div><div class="battle-intent">${enemyHint(e)}</div></div><div class="battle-effects">${statusLabels(g.effects).map(t => `<span>${t}</span>`).join('')}${g.charge ? '<span>次の攻撃2倍</span>' : ''}<span class="target-status">敵：防${enemyStats(e).def} 速${enemyStats(e).agi} ${statusLabels(e.effects).join(' ')}</span></div><div class="turn-log" role="log" aria-live="polite">${lines.map(l => `<p>${esc(l)}</p>`).join('')}</div><section class="command-panel" aria-label="戦闘コマンド">${commandsHtml()}</section></section>`;
 }
 function commandsHtml(): string {
   const g = game;
   if (battleMenu === 'skills') return `<div class="command-title"><button class="back-button" data-battle-menu="main">← 戻る</button><strong>スキルを選ぶ</strong></div><div class="command-grid skill-commands">${g.slots.map((id, i) => {
     const s = id ? skill(id) : null;
-    return `<button data-action="${i}" data-focus="skill-${i}" ${disabled(busy || !s || g.cooldowns[i] > 0 || g.sp < s.sp)}><strong>${s ? `${s.symbol} ${s.name}` : '未セット'}</strong><small>${!s ? '戦闘前にセット' : g.cooldowns[i] > 0 ? `あと${g.cooldowns[i]}ターン` : g.sp < s.sp ? `SP不足（必要 ${s.sp}）` : `SP ${s.sp} / CT ${s.cd}`}</small></button>`;
+    return `<button data-action="${i}" data-focus="skill-${i}" ${disabled(busy || !s || g.cooldowns[i] > 0 || g.sp < s.sp || !!g.effects.panic)}><strong>${s ? `${s.symbol} ${s.name}` : '未セット'}</strong><small>${!s ? '戦闘前にセット' : g.effects.panic ? '封印中' : g.cooldowns[i] > 0 ? `あと${g.cooldowns[i]}ターン` : g.sp < s.sp ? `SP不足（必要 ${s.sp}）` : `SP ${s.sp} / CT ${s.cd}`}</small></button>`;
   }).join('')}</div>`;
-  if (battleMenu === 'items') return `<div class="command-title"><button class="back-button" data-battle-menu="main">← 戻る</button><strong>アイテムを使う</strong></div><button class="item-command" data-action="potion" ${disabled(busy || g.potions === 0)}><strong>♧ ポーション <b>×${g.potions}</b></strong><small>最大HPの50%を回復 / 1ターン消費</small></button>`;
-  return `<div class="command-grid"><button class="primary" data-action="attack" data-focus="attack" ${disabled(busy)}><span class="command-icon">${swordIcon}</span>攻撃</button><button data-battle-menu="skills" ${disabled(busy)}><span class="command-symbol">✦</span>スキル</button><button data-battle-menu="items" ${disabled(busy)}><span class="command-symbol">♧</span>アイテム</button><button data-action="guard" data-focus="guard" ${disabled(busy)}><span class="command-icon">${shieldIcon}</span>防御</button></div>`;
+  if (battleMenu === 'items') return `<div class="command-title"><button class="back-button" data-battle-menu="main">← 戻る</button><strong>アイテム / 各1ターン</strong></div><div class="consumable-commands">${([['potion', 'ポーション', g.potions, 'HP 50%回復'], ['ether', 'エーテル', g.ethers, 'SP 50%回復'], ['remedy', '治療薬', g.remedies, '毒・封印を解除']] as const).map(([id, name, count, text]) => `<button data-action="${id}" ${disabled(busy || count === 0)}><strong>${name} ×${count}</strong><small>${text}</small></button>`).join('')}</div>`;
+  return `<div class="command-grid"><button class="primary" data-action="attack" data-focus="attack" ${disabled(busy)}><span class="command-icon">${swordIcon}</span>攻撃</button><button data-battle-menu="skills" ${disabled(busy)}><span class="command-symbol">✦</span>スキル</button><button data-battle-menu="items" ${disabled(busy)}><span class="command-symbol">♧</span>アイテム</button><button data-action="run" data-focus="run" ${disabled(busy)}><span class="command-symbol">↗</span>逃げる</button></div>`;
 }
 function statsHtml(): string {
   const g = game, d = derived(g);
-  return `<section class="scroll-pane" data-screen="stats"><div class="page-heading"><h1>能力を育てる</h1><p>スキル習得と同じXPを使います。</p></div><div class="stat-list">${([['hp', 'HP', 'たいりょく', '最大HP +12'], ['sp', 'SP', 'せいしん', '最大SP +5'], ['atk', 'ATK', 'こうげき', '攻撃力 +3'], ['def', 'DEF', 'ぼうぎょ', '防御力 +2'], ['agi', 'AGI', 'すばやさ', '会心・回避率アップ']] as const).map(([key, code, label, desc]) => `<div class="stat-row"><span class="stat-code">${code}</span><div><h2>${label}<small>強化 ${g.stats[key]}回</small></h2><p>${desc}</p></div><button data-stat="${key}" data-focus="stat-${key}" ${disabled(g.xp < statCost(g, key))} aria-label="${label}を${statCost(g, key)}XPで強化">＋ <span>${statCost(g, key)} XP</span></button></div>`).join('')}</div><div class="derived"><span>攻撃 <b>${d.atk}</b></span><span>防御 <b>${d.def}</b></span><span>会心 <b>${Math.round(d.crit * 100)}%</b></span><span>回避 <b>${Math.round(d.dodge * 100)}%</b></span></div><h2 class="section-label">装備中</h2><div class="equipment-card"><span class="equipment-icon">${swordIcon}</span><div><small>武器</small><strong>${item(g.weapon).name}</strong></div><b>攻撃 +${item(g.weapon).bonus}</b></div><div class="equipment-card"><span class="equipment-icon">${shieldIcon}</span><div><small>防具</small><strong>${item(g.armor).name}</strong></div><b>防御 +${item(g.armor).bonus}</b></div></section>`;
+  return `<section class="scroll-pane" data-screen="stats"><div class="page-heading"><h1>能力を育てる</h1><p>スキル習得と同じXPを使います。</p></div><div class="stat-list">${([['hp', 'HP', 'たいりょく', '最大HP +14'], ['sp', 'SP', 'せいしん', '最大SP +6'], ['atk', 'ATK', 'こうげき', '攻撃力 +3'], ['def', 'DEF', 'ぼうぎょ', '防御力 +2'], ['agi', 'AGI', 'すばやさ', '命中・回避の両方に影響']] as const).map(([key, code, label, desc]) => `<div class="stat-row"><span class="stat-code">${code}</span><div><h2>${label}<small>強化 ${g.stats[key]}回</small></h2><p>${desc}</p></div><button data-stat="${key}" data-focus="stat-${key}" ${disabled(g.xp < statCost(g, key))} aria-label="${label}を${statCost(g, key)}XPで強化">＋ <span>${statCost(g, key)} XP</span></button></div>`).join('')}</div><div class="derived"><span>攻撃 <b>${d.atk}</b></span><span>防御 <b>${d.def}</b></span><span>会心 <b>${Math.round(d.crit * 100)}%</b></span><span>AGI <b>${d.agi}</b></span></div><h2 class="section-label">装備中</h2><div class="equipment-card"><span class="equipment-icon">${swordIcon}</span><div><small>武器</small><strong>${item(g.weapon).name}</strong><small>${item(g.weapon).description}</small></div></div><div class="equipment-card"><span class="equipment-icon">${shieldIcon}</span><div><small>防具</small><strong>${item(g.armor).name}</strong><small>${item(g.armor).description}</small></div></div><button class="text-button" data-do="respec">能力・スキルを振り直す（XP全額返却）</button></section>`;
 }
 function skillsHtml(): string {
   const g = game;
   const loadout = `<div class="loadout"><h2>戦闘に持ち込む4枠</h2><div>${g.slots.map((id, i) => `<label><span>枠 ${i + 1}</span><select data-slot="${i}" data-focus="slot-${i}" aria-label="スキルスロット${i + 1}"><option value="">未セット</option>${g.learned.map(k => `<option value="${k}" ${k === id ? 'selected' : ''}>${skill(k).name}</option>`).join('')}</select></label>`).join('')}</div><p>同じ技もセット可。待機時間は枠ごと。</p></div>`;
-  const tree = `<div class="segmented" role="group" aria-label="スキル系統">${([['blade', '⚔ 剣技'], ['guard', '◇ 守護'], ['life', '♧ 生命']] as const).map(([id, title]) => `<button data-branch="${id}" aria-pressed="${branch === id}">${title}</button>`).join('')}</div><div class="skill-tree">${SKILLS.filter(s => s.branch === branch).map((s, i) => {
+  const tree = `<div class="segmented" role="group" aria-label="スキル系統">${([['blade', '⚔ 攻撃'], ['guard', '◇ 強化'], ['life', '♧ 回復・妨害']] as const).map(([id, title]) => `<button data-branch="${id}" aria-pressed="${branch === id}">${title}</button>`).join('')}</div><div class="skill-tree"><svg class="tree-links" viewBox="0 0 100 100" preserveAspectRatio="none" aria-hidden="true"><path d="${branch === 'life' ? 'M25 25L75 75' : 'M25 25H75V75M25 25V75'}"/></svg>${SKILLS.filter(s => s.branch === branch).map((s, i) => {
     const owned = g.learned.includes(s.id), ready = s.requires.every(p => g.learned.includes(p));
-    return `<button class="skill-node tree-choice node-${i} ${owned ? 'learned' : !ready ? 'locked' : ''}" data-skill="${s.id}" data-focus="node-${s.id}" aria-label="${s.name}の詳細"><strong>${s.symbol} ${s.name}</strong><span>${owned ? '✓ 習得済み' : !ready ? '前提未習得' : s.cost + ' XPで習得'}</span></button>`;
+    return `<button class="skill-node tree-choice node-${i} ${owned ? 'learned' : !ready ? 'locked' : ''}" data-skill="${s.id}" data-focus="node-${s.id}" aria-label="${s.name}の詳細"><strong>${s.symbol} ${s.name}</strong><span>${owned ? '✓ 習得済み' : !ready ? '前提未習得' : s.cost + ' XPで習得'}</span><small>${s.requires.length ? '← ' + s.requires.map(p => skill(p).name).join('・') : '前提なし'}</small></button>`;
   }).join('')}</div><p class="tree-hint">技をタップして、効果と習得条件を確認。</p>`;
   return `<section class="scroll-pane skills-pane" data-screen="skills"><div class="page-heading compact-heading"><h1>スキル <small>${g.learned.length}/12</small></h1><div class="skill-mode" role="group" aria-label="スキル画面"><button data-skill-view="tree" aria-pressed="${skillView === 'tree'}">ツリー</button><button data-skill-view="loadout" aria-pressed="${skillView === 'loadout'}">編成</button></div></div>${skillView === 'tree' ? tree : loadout}</section>`;
 }
 function shopHtml(): string {
   const g = game;
-  return `<section class="scroll-pane" data-screen="shop"><div class="page-heading"><h1>旅の道具屋</h1><p>装備は購入すると自動で装着します。</p></div><div class="segmented" role="group" aria-label="商品カテゴリ">${([['weapon', '武器'], ['armor', '防具'], ['items', 'アイテム']] as const).map(([id, name]) => `<button data-category="${id}" aria-pressed="${shopCategory === id}">${name}</button>`).join('')}</div><div class="product-list">${shopCategory === 'items' ? `<article class="product-card"><span class="product-symbol">♧</span><div><h2>回復ポーション</h2><p>最大HPの50%を回復</p><small>所持 ${g.potions} / 9 ・ 戦闘中に使用</small></div><button data-buy="potion" ${disabled(g.gold < 10 || g.potions >= 9)}>10 G</button></article>` : ITEMS.filter(i => i.slot === shopCategory && i.cost > 0).map(i => {
-    const equipped = g[i.slot] === i.id, owned = item(g[i.slot]).tier >= i.tier;
-    return `<article class="product-card"><span class="product-icon">${i.slot === 'weapon' ? swordIcon : shieldIcon}</span><div><h2>${i.name}</h2><p>${i.slot === 'weapon' ? '攻撃' : '防御'} +${i.bonus}</p><small>${equipped ? '装備中' : owned ? '上位品を装備済み' : '購入時に自動装備'}</small></div><button data-buy="${i.id}" ${disabled(owned || g.gold < i.cost)}>${equipped ? '装備中' : owned ? '購入済' : `${i.cost} G`}</button></article>`;
-  }).join('')}</div><p class="page-note">HP・SPは戦闘終了時に全回復。ポーションは戦闘中のピンチに使おう。</p></section>`;
+  return `<section class="scroll-pane" data-screen="shop"><div class="page-heading"><h1>旅の道具屋</h1><p>購入済みの装備は何度でも着替えられます。</p></div><div class="segmented" role="group" aria-label="商品カテゴリ">${([['weapon', '武器'], ['armor', '防具'], ['items', 'アイテム']] as const).map(([id, name]) => `<button data-category="${id}" aria-pressed="${shopCategory === id}">${name}</button>`).join('')}</div><div class="product-list">${shopCategory === 'items' ? ([['potion', 'ポーション', 'HP 50%回復', 10, g.potions], ['ether', 'エーテル', 'SP 50%回復', 15, g.ethers], ['remedy', '治療薬', '毒・封印を解除', 12, g.remedies]] as const).map(([id, name, desc, cost, count]) => `<article class="product-card"><div><h2>${name}</h2><p>${desc}</p><small>所持 ${count} / 9 ・ 使用に1ターン</small></div><button data-buy="${id}" ${disabled(g.gold < cost || count >= 9)}>${cost} G</button></article>`).join('') : ITEMS.filter(i => i.slot === shopCategory).map(i => {
+    const equipped = g[i.slot] === i.id, owned = g.owned.includes(i.id);
+    return `<article class="product-card"><span class="product-icon">${i.slot === 'weapon' ? swordIcon : shieldIcon}</span><div><h2>${i.name}</h2><p>${i.description}</p><small>${equipped ? '装備中' : owned ? '購入済み・着替え可能' : '購入時に自動装備'}</small></div><button ${owned ? 'data-equip' : 'data-buy'}="${i.id}" ${disabled(equipped || !owned && g.gold < i.cost)}>${equipped ? '装備中' : owned ? '装備' : `${i.cost} G`}</button></article>`;
+  }).join('')}</div><p class="page-note">敵に合わせて、攻防・命中回避・耐性を選ぼう。HP・SPは戦闘終了時に全回復。</p></section>`;
 }
 function dialogHtml(): string {
   const close = '<button class="icon-button" data-do="close" aria-label="閉じる">×</button>';
+  if (modal === 'encounter') return `<dialog aria-labelledby="dialog-heading"><div class="dialog-heading"><h2 id="dialog-heading">敵の情報</h2>${close}</div>${encounterPreview(game.stage, pendingEncounter, pendingBoss).map(e => `<article class="enemy-preview"><h3>${e.name}</h3><p>HP ${e.maxHp} / ATK ${e.atk} / DEF ${e.def} / AGI ${e.agi}</p><p>${enemyHint(e)}</p></article>`).join('')}<p class="page-note">全員を倒すと勝利。戦闘中は敵の名前で攻撃対象を選べます。</p><button class="primary wide" data-do="confirm-battle">この編成で挑む</button><button class="text-button wide" data-do="close">装備・スキルを見直す</button></dialog>`;
+  if (modal === 'respec') return `<dialog aria-labelledby="dialog-heading"><div class="dialog-heading"><h2 id="dialog-heading">育成を振り直す</h2>${close}</div><p>能力とスキルに使ったXPを全額返却します。進行・所持金・装備は引き継ぎます。</p><button class="primary wide" data-do="confirm-respec">XPを戻して振り直す</button></dialog>`;
   if (modal === 'skill') {
     const s = skill(selectedSkill), owned = game.learned.includes(s.id), ready = s.requires.every(id => game.learned.includes(id));
     return `<dialog aria-labelledby="dialog-heading"><div class="dialog-heading"><h2 id="dialog-heading">${s.symbol} ${s.name}</h2>${close}</div><p>${s.effect}</p><div class="skill-detail-meta"><span>消費SP <b>${s.sp}</b></span><span>待機 <b>${s.cd}ターン</b></span><span>習得 <b>${s.cost} XP</b></span></div><p class="page-note">${s.requires.length ? `前提：${s.requires.map(id => skill(id).name).join('・')}` : '前提スキルなし'}<br>習得時は空いている枠に自動セットします。</p><button class="primary wide" data-learn="${s.id}" ${disabled(owned || !ready || game.xp < s.cost)}>${owned ? '習得済み ✓' : !ready ? '前提スキルが必要です' : game.xp < s.cost ? 'XPが足りません' : `${s.cost} XPで習得する`}</button></dialog>`;
   }
   const heading = modal === 'help' ? '冒険の手引き' : modal === 'log' ? '冒険の記録' : '最初からはじめる？';
-  const body = modal === 'help' ? `<ol class="help-list"><li><h3>赤い地点から戦闘へ</h3><p>通常戦3地点を突破するとボス解放。クリア済み地点は何度でも再戦できます。</p></li><li><h3>XPの使い道を選ぶ</h3><p>能力を伸ばすか、技を覚えるか。スキル画面で4枠を編成してから戦いましょう。</p></li><li><h3>戦闘は1回ずつ全力で</h3><p>戦闘が終わるとHP・SPは全回復。戦闘中はスキルやポーションで回復します。ボスの大技予告には防御が有効です。</p></li></ol><p class="page-note">操作はすべてタップ対応。キーボードでは攻撃A、防御D、回復H、スキル1〜4。セーブはこのブラウザ内に自動保存されます。</p><button class="danger-link" data-do="reset">セーブを消してやり直す</button>` : modal === 'log' ? `<div class="full-log">${game.log.map(l => `<p>${esc(l)}</p>`).join('')}</div>` : '<p>能力・スキル・お金・装備を含む、今のセーブデータが消えます。</p><div class="dialog-actions"><button data-do="close" autofocus>続きに戻る</button><button class="danger-button" data-do="confirm-reset">最初から</button></div>';
+  const body = modal === 'help' ? `<ol class="help-list"><li><h3>赤い地点から戦闘へ</h3><p>通常戦3地点を突破するとボス解放。クリア済み地点は何度でも再戦できます。</p></li><li><h3>XPの使い道を選ぶ</h3><p>能力を伸ばすか、技を覚えるか。スキル画面で4枠を編成してから戦いましょう。</p></li><li><h3>戦闘は1回ずつ全力で</h3><p>戦闘が終わるとHP・SPは全回復。戦闘中はスキルやポーションで回復します。敵の回復役を先に倒す、強化とチャージを重ねる、耐性装備を選ぶなど、相手に応じて編成しましょう。</p></li></ol><p class="page-note">操作はすべてタップ対応。キーボードでは攻撃A、逃走R、回復H、スキル1〜4。セーブはこのブラウザ内に自動保存されます。</p><button class="danger-link" data-do="reset">セーブを消してやり直す</button>` : modal === 'log' ? `<div class="full-log">${game.log.map(l => `<p>${esc(l)}</p>`).join('')}</div>` : '<p>能力・スキル・お金・装備を含む、今のセーブデータが消えます。</p><div class="dialog-actions"><button data-do="close" autofocus>続きに戻る</button><button class="danger-button" data-do="confirm-reset">最初から</button></div>';
   return `<dialog aria-labelledby="dialog-heading"><div class="dialog-heading"><h2 id="dialog-heading">${heading}</h2>${close}</div>${body}</dialog>`;
 }
 function openModal(kind: typeof modal): void { returnFocusKey = (document.activeElement as HTMLElement)?.dataset.focus; modal = kind; render(); }
@@ -114,17 +117,22 @@ app.addEventListener('click', event => {
   if (button.dataset.category) { shopCategory = button.dataset.category as typeof shopCategory; render(); return; }
   if (button.dataset.battleMenu) { battleMenu = button.dataset.battleMenu as BattleMenu; render(); return; }
   if (button.dataset.action !== undefined) { const a = button.dataset.action; handleAction(/^\d$/.test(a) ? Number(a) : a as Action); return; }
+  if (button.dataset.target !== undefined) { selectTarget(game, Number(button.dataset.target)); render(); return; }
+  if (button.dataset.equip) equip(game, button.dataset.equip);
   if (button.dataset.stat) allocate(game, button.dataset.stat as Stat);
   if (button.dataset.learn) learn(game, button.dataset.learn);
   if (button.dataset.buy) buy(game, button.dataset.buy);
-  if (button.dataset.encounter !== undefined) { startBattle(game, false, Number(button.dataset.encounter)); battleMenu = 'main'; }
+  if (button.dataset.encounter !== undefined) { pendingEncounter = Number(button.dataset.encounter); pendingBoss = false; openModal('encounter'); return; }
   switch (button.dataset.do) {
     case 'help': openModal('help'); return;
     case 'log': openModal('log'); return;
     case 'reset': openModal('reset'); return;
     case 'close': closeModal(); return;
     case 'confirm-reset': game = newGame(); screen = 'map'; modal = null; busy = false; clearTimeout(effectTimer); break;
-    case 'boss': startBattle(game, true); battleMenu = 'main'; break;
+    case 'boss': pendingEncounter = 2; pendingBoss = true; openModal('encounter'); return;
+    case 'confirm-battle': startBattle(game, pendingBoss, pendingEncounter); battleMenu = 'main'; modal = null; break;
+    case 'respec': openModal('respec'); return;
+    case 'confirm-respec': respec(game); modal = null; break;
     case 'next': nextStage(game); break;
   }
   persist(); render();
@@ -135,7 +143,7 @@ app.addEventListener('change', event => {
 });
 document.addEventListener('keydown', event => {
   if (modal || event.repeat || event.ctrlKey || event.metaKey || event.altKey || (event.target as Element)?.matches('input,textarea,select')) return;
-  const action = ({ '1': 0, '2': 1, '3': 2, '4': 3, 'a': 'attack', 'd': 'guard', 'h': 'potion' } as Record<string, Action>)[event.key.toLowerCase()];
+  const action = ({ '1': 0, '2': 1, '3': 2, '4': 3, 'a': 'attack', 'r': 'run', 'h': 'potion' } as Record<string, Action>)[event.key.toLowerCase()];
   if (action !== undefined) { event.preventDefault(); handleAction(action); }
 });
 persist(); render();
