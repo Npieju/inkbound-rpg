@@ -60,7 +60,7 @@ function commandsHtml(): string {
   const g = game;
   if (battleMenu === 'skills') return `<div class="command-title"><button class="back-button" data-battle-menu="main">← 戻る</button><strong>スキルを選ぶ</strong></div><div class="command-grid skill-commands">${g.slots.map((id, i) => {
     const s = id ? skill(id) : null;
-    return `<button data-action="${i}" data-focus="skill-${i}" ${disabled(busy || !s || g.cooldowns[i] > 0 || g.sp < s.sp || !!g.effects.panic)}><strong>${s ? `${s.symbol} ${s.name}` : '未セット'}</strong><small>${!s ? '戦闘前にセット' : g.effects.panic ? '封印中' : g.cooldowns[i] > 0 ? `あと${g.cooldowns[i]}ターン` : g.sp < s.sp ? `SP不足（必要 ${s.sp}）` : `SP ${s.sp} / CT ${s.cd}`}</small></button>`;
+    return `<button data-action="${i}" data-focus="skill-${i}" ${disabled(busy || !s || g.cooldowns[i] > 0 || g.sp < s.sp || !!g.effects.panic)}><strong>${s ? `${s.symbol} ${s.name}` : '未セット'}</strong>${s ? `<span class="skill-summary">${s.summary}</span>` : ''}<small>${!s ? '戦闘前にセット' : g.effects.panic ? '封印中' : g.cooldowns[i] > 0 ? `あと${g.cooldowns[i]}ターン` : g.sp < s.sp ? `SP不足（必要 ${s.sp}）` : `SP ${s.sp}・待機 ${s.cd}`}</small></button>`;
   }).join('')}</div>`;
   if (battleMenu === 'items') return `<div class="command-title"><button class="back-button" data-battle-menu="main">← 戻る</button><strong>アイテム / 各1ターン</strong></div><div class="consumable-commands">${([['potion', 'ポーション', g.potions, 'HP 50%回復'], ['ether', 'エーテル', g.ethers, 'SP 50%回復'], ['remedy', '治療薬', g.remedies, '毒・封印を解除']] as const).map(([id, name, count, text]) => `<button data-action="${id}" ${disabled(busy || count === 0)}><strong>${name} ×${count}</strong><small>${text}</small></button>`).join('')}</div>`;
   return `<div class="command-grid"><button class="primary" data-action="attack" data-focus="attack" ${disabled(busy)}><span class="command-icon">${swordIcon}</span>攻撃</button><button data-battle-menu="skills" ${disabled(busy)}><span class="command-symbol">✦</span>スキル</button><button data-battle-menu="items" ${disabled(busy)}><span class="command-symbol">♧</span>アイテム</button><button data-action="run" data-focus="run" ${disabled(busy)}><span class="command-symbol">↗</span>逃げる</button></div>`;
@@ -71,10 +71,10 @@ function statsHtml(): string {
 }
 function skillsHtml(): string {
   const g = game;
-  const loadout = `<div class="loadout"><h2>戦闘に持ち込む4枠</h2><div>${g.slots.map((id, i) => `<label><span>枠 ${i + 1}</span><select data-slot="${i}" data-focus="slot-${i}" aria-label="スキルスロット${i + 1}"><option value="">未セット</option>${g.learned.map(k => `<option value="${k}" ${k === id ? 'selected' : ''}>${skill(k).name}</option>`).join('')}</select></label>`).join('')}</div><p>同じ技もセット可。待機時間は枠ごと。</p></div>`;
-  const tree = `<div class="segmented" role="group" aria-label="スキル系統">${([['blade', '⚔ 攻撃'], ['guard', '◇ 強化'], ['life', '♧ 回復・妨害']] as const).map(([id, title]) => `<button data-branch="${id}" aria-pressed="${branch === id}">${title}</button>`).join('')}</div><div class="skill-tree"><svg class="tree-links" viewBox="0 0 100 100" preserveAspectRatio="none" aria-hidden="true"><path d="${branch === 'life' ? 'M25 25L75 75' : 'M25 25H75V75M25 25V75'}"/></svg>${SKILLS.filter(s => s.branch === branch).map((s, i) => {
+  const loadout = `<div class="loadout"><h2>戦闘に持ち込む4枠</h2><div>${g.slots.map((id, i) => `<label><span>枠 ${i + 1}</span><select data-slot="${i}" data-focus="slot-${i}" aria-label="スキルスロット${i + 1}"><option value="">未セット</option>${g.learned.map(k => `<option value="${k}" ${k === id ? 'selected' : ''}>${skill(k).name}</option>`).join('')}</select><span class="loadout-summary">${id ? skill(id).summary : '技を選んでセット'}</span></label>`).join('')}</div><p>同じ技もセット可。待機時間は枠ごと。</p></div>`;
+  const tree = `<div class="segmented" role="group" aria-label="スキル系統">${([['blade', '⚔ 攻撃'], ['guard', '◇ 強化'], ['life', '回復・妨害']] as const).map(([id, title]) => `<button data-branch="${id}" aria-pressed="${branch === id}">${title}</button>`).join('')}</div><div class="skill-tree"><svg class="tree-links" viewBox="0 0 100 100" preserveAspectRatio="none" aria-hidden="true"><path d="${branch === 'life' ? 'M25 25L75 75' : 'M25 25H75V75M25 25V75'}"/></svg>${SKILLS.filter(s => s.branch === branch).map((s, i) => {
     const owned = g.learned.includes(s.id), ready = s.requires.every(p => g.learned.includes(p));
-    return `<button class="skill-node tree-choice node-${i} ${owned ? 'learned' : !ready ? 'locked' : ''}" data-skill="${s.id}" data-focus="node-${s.id}" aria-label="${s.name}の詳細"><strong>${s.symbol} ${s.name}</strong><span>${owned ? '✓ 習得済み' : !ready ? '前提未習得' : s.cost + ' XPで習得'}</span><small>${s.requires.length ? '← ' + s.requires.map(p => skill(p).name).join('・') : '前提なし'}</small></button>`;
+    return `<button class="skill-node tree-choice node-${i} ${owned ? 'learned' : !ready ? 'locked' : ''}" data-skill="${s.id}" data-focus="node-${s.id}" aria-label="${s.name}：${s.summary}。詳細を開く"><strong>${s.symbol} ${s.name}</strong><span class="skill-summary">${s.summary}</span><span>${owned ? '✓ 習得済み' : !ready ? '前提未習得' : s.cost + ' XPで習得'}</span><small>${s.requires.length ? '← ' + s.requires.map(p => skill(p).name).join('・') : '前提なし'}</small></button>`;
   }).join('')}</div><p class="tree-hint">技をタップして、効果と習得条件を確認。</p>`;
   return `<section class="scroll-pane skills-pane" data-screen="skills"><div class="page-heading compact-heading"><h1>スキル <small>${g.learned.length}/12</small></h1><div class="skill-mode" role="group" aria-label="スキル画面"><button data-skill-view="tree" aria-pressed="${skillView === 'tree'}">ツリー</button><button data-skill-view="loadout" aria-pressed="${skillView === 'loadout'}">編成</button></div></div>${skillView === 'tree' ? tree : loadout}</section>`;
 }
@@ -139,7 +139,7 @@ app.addEventListener('click', event => {
 });
 app.addEventListener('change', event => {
   const select = event.target as HTMLSelectElement;
-  if (select.matches('select[data-slot]')) { equipSkill(game, Number(select.dataset.slot), select.value || null); persist(); }
+  if (select.matches('select[data-slot]')) { equipSkill(game, Number(select.dataset.slot), select.value || null); persist(); render(); }
 });
 document.addEventListener('keydown', event => {
   if (modal || event.repeat || event.ctrlKey || event.metaKey || event.altKey || (event.target as Element)?.matches('input,textarea,select')) return;

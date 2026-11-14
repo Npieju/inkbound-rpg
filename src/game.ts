@@ -20,20 +20,20 @@ export const ITEMS: readonly Item[] = [
   { id: 'mind-robe', name: '平静の衣', slot: 'armor', cost: 90, bonus: 4, resist: 'panic', tier: 2, description: '防御 +4 / スキル封印を無効化。' },
   { id: 'swift-coat', name: '疾風のコート', slot: 'armor', cost: 100, bonus: 4, agi: 10, tier: 2, description: '防御 +4 / AGI +10。' },
 ];
-export interface Skill { id: string; name: string; branch: 'blade' | 'guard' | 'life'; cost: number; sp: number; cd: number; requires: string[]; effect: string; symbol: string }
+export interface Skill { id: string; name: string; branch: 'blade' | 'guard' | 'life'; cost: number; sp: number; cd: number; requires: string[]; summary: string; effect: string; symbol: string }
 export const SKILLS: readonly Skill[] = [
-  { id: 'heavy', name: 'スマッシュ', branch: 'blade', cost: 12, sp: 4, cd: 2, requires: [], effect: '攻撃150%の単体攻撃。低SP。複数枠に積めば待機中も別枠から使える。', symbol: '⚔' },
-  { id: 'charge', name: 'チャージ', branch: 'blade', cost: 18, sp: 5, cd: 3, requires: ['heavy'], effect: '次の攻撃行動の威力を2倍にする。通常攻撃でも消費する。', symbol: '↑' },
-  { id: 'double', name: 'フレイム', branch: 'blade', cost: 42, sp: 30, cd: 3, requires: ['heavy'], effect: '生きている敵全員に攻撃300%。高消費の全体攻撃。', symbol: '炎' },
-  { id: 'finisher', name: 'フェイタル', branch: 'blade', cost: 65, sp: 14, cd: 3, requires: ['charge'], effect: '攻撃320%の単体攻撃。攻撃強化・チャージ・敵の防御低下と組み合わせられる。', symbol: '✦' },
-  { id: 'ward', name: 'プロテクト', branch: 'guard', cost: 12, sp: 4, cd: 3, requires: [], effect: '防御を50%上げる。4ターン有効。', symbol: '◇' },
-  { id: 'regen', name: 'レイジ', branch: 'guard', cost: 22, sp: 5, cd: 3, requires: ['ward'], effect: '攻撃を50%上げる。4ターン有効。', symbol: '力' },
-  { id: 'focus', name: 'スウィフト', branch: 'guard', cost: 18, sp: 4, cd: 3, requires: ['ward'], effect: 'AGIを50%上げる。4ターン有効。命中と回避の両方に影響。', symbol: '速' },
-  { id: 'fortress', name: 'ブレッシング', branch: 'guard', cost: 60, sp: 10, cd: 4, requires: ['regen'], effect: '攻撃・防御・AGIを各25%上げる。4ターン有効。同種強化は加算せず強い方を使う。', symbol: '祝' },
-  { id: 'mend', name: 'ヒール', branch: 'life', cost: 12, sp: 4, cd: 1, requires: [], effect: '最大HPの40%を回復する。状態異常は残る。', symbol: '+' },
-  { id: 'bash', name: 'ブレイク', branch: 'life', cost: 16, sp: 4, cd: 3, requires: [], effect: '対象の防御を50%下げる。4ターン有効。', symbol: '砕' },
-  { id: 'drain', name: 'スロウ', branch: 'life', cost: 18, sp: 4, cd: 3, requires: [], effect: '対象のAGIを50%下げる。4ターン有効。命中と回避を崩す。', symbol: '遅' },
-  { id: 'renew', name: 'フルリカバー', branch: 'life', cost: 55, sp: 12, cd: 3, requires: ['mend'], effect: 'HPを全回復し、毒・封印・能力低下を取り除く。', symbol: '光' },
+  { id: 'heavy', name: 'スマッシュ', branch: 'blade', summary: "単体に攻撃150%", cost: 12, sp: 4, cd: 2, requires: [], effect: '攻撃150%の単体攻撃。低SP。複数枠に積めば待機中も別枠から使える。', symbol: '⚔' },
+  { id: 'charge', name: 'チャージ', branch: 'blade', summary: "次の攻撃が2倍", cost: 18, sp: 5, cd: 3, requires: ['heavy'], effect: '次の攻撃行動の威力を2倍にする。通常攻撃でも消費する。', symbol: '↑' },
+  { id: 'double', name: 'フレイム', branch: 'blade', summary: "全体に攻撃300%", cost: 42, sp: 30, cd: 3, requires: ['heavy'], effect: '生きている敵全員に攻撃300%。高消費の全体攻撃。', symbol: '炎' },
+  { id: 'finisher', name: 'フェイタル', branch: 'blade', summary: "単体に攻撃320%", cost: 65, sp: 14, cd: 3, requires: ['charge'], effect: '攻撃320%の単体攻撃。攻撃強化・チャージ・敵の防御低下と組み合わせられる。', symbol: '✦' },
+  { id: 'ward', name: 'プロテクト', branch: 'guard', summary: "防御+50%・4T", cost: 12, sp: 4, cd: 3, requires: [], effect: '防御を50%上げる。4ターン有効。', symbol: '◇' },
+  { id: 'regen', name: 'レイジ', branch: 'guard', summary: "攻撃+50%・4T", cost: 22, sp: 5, cd: 3, requires: ['ward'], effect: '攻撃を50%上げる。4ターン有効。', symbol: '力' },
+  { id: 'focus', name: 'スウィフト', branch: 'guard', summary: "AGI+50%・4T", cost: 18, sp: 4, cd: 3, requires: ['ward'], effect: 'AGIを50%上げる。4ターン有効。命中と回避の両方に影響。', symbol: '速' },
+  { id: 'fortress', name: 'ブレッシング', branch: 'guard', summary: "攻防AGI+25%・4T", cost: 60, sp: 10, cd: 4, requires: ['regen'], effect: '攻撃・防御・AGIを各25%上げる。4ターン有効。同種強化は加算せず強い方を使う。', symbol: '祝' },
+  { id: 'mend', name: 'ヒール', branch: 'life', summary: "最大HPの40%回復", cost: 12, sp: 4, cd: 1, requires: [], effect: '最大HPの40%を回復する。状態異常は残る。', symbol: '+' },
+  { id: 'bash', name: 'ブレイク', branch: 'life', summary: "敵の防御−50%・4T", cost: 16, sp: 4, cd: 3, requires: [], effect: '対象の防御を50%下げる。4ターン有効。', symbol: '砕' },
+  { id: 'drain', name: 'スロウ', branch: 'life', summary: "敵のAGI−50%・4T", cost: 18, sp: 4, cd: 3, requires: [], effect: '対象のAGIを50%下げる。4ターン有効。命中と回避を崩す。', symbol: '遅' },
+  { id: 'renew', name: 'フルリカバー', branch: 'life', summary: "HP全回復＋異常治療", cost: 55, sp: 12, cd: 3, requires: ['mend'], effect: 'HPを全回復し、毒・封印・能力低下を取り除く。', symbol: '光' },
 ];
 export const item = (id: string) => ITEMS.find(i => i.id === id)!;
 export const skill = (id: string) => SKILLS.find(s => s.id === id)!;

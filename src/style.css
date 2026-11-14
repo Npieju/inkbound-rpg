@@ -26,3 +26,26 @@ dialog{background:var(--paper);color:var(--ink);border:1px solid #becdab;box-sha
 .skill-tree{position:relative}.tree-links{position:absolute;inset:0;width:100%;height:100%;pointer-events:none}.tree-links path{fill:none;stroke:#91a67a;stroke-width:1;stroke-dasharray:2 1}.skills-pane .skill-tree{gap:20px 16px}.tree-choice{z-index:1}
 
 .battle-effects{height:auto;min-height:22px;flex-wrap:wrap;white-space:normal;row-gap:2px;padding-top:3px;padding-bottom:3px}.battle-effects>span{white-space:nowrap}
+
+/* Keep the effect visible while comparing skills, including unusable combat slots. */
+.tree-choice .skill-summary,.skill-commands .skill-summary{font-size:13px;font-weight:650;line-height:1.4;color:#435f35;white-space:normal;overflow-wrap:anywhere}
+.tree-choice .skill-summary{min-height:2.8em;display:flex;align-items:center;justify-content:center}
+.tree-choice{gap:4px;min-height:118px}
+.skill-commands>button{min-height:80px;gap:3px}
+.skill-commands .skill-summary{min-height:1.4em}
+.loadout .loadout-summary{font-size:13px;line-height:1.5;color:#435f35;min-height:2.8em}
+@media(max-height:700px){
+  .tree-choice{min-height:108px;padding:7px 5px;gap:3px}
+  .tree-choice strong{font-size:14px}
+  .skills-pane .tree-hint{display:none}
+  .skill-commands>button{min-height:73px;padding:6px 4px}
+  .skill-commands strong{font-size:14px}
+  .skill-commands .skill-summary{font-size:12px}
+}
+@media(orientation:landscape) and (max-height:500px){
+  .skill-commands>button{min-height:73px}
+}
+
+@media(max-height:700px){.tree-choice{padding:5px;gap:2px}}
+.skill-commands>button:disabled{opacity:1;color:#718166;background:#edf0e5;border-color:#d7ddcf}.skill-commands>button:disabled .skill-summary{color:#5e7052}
+@media(max-height:700px){.skills-pane .skill-tree{row-gap:16px}}
