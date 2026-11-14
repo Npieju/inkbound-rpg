@@ -1,5 +1,8 @@
 /** Presentation only: IDs, rules, costs and saves never depend on a world's vocabulary. */
-export type SkinId = 'journal' | 'neon' | 'dojo';
+import { ACADEMY, LIBRARY } from './storybook.ts';
+import { storyScenery, storyFighter } from './storybook-art.ts';
+export type SkinId = 'journal' | 'neon' | 'dojo' | 'academy' | 'library';
+export interface WorldFind { name:string; detail:string; icon:'sweet'|'book'|'flower'|'key'; before?:string }
 export interface Skin {
   id: SkinId; name: string; title: string; emblem: string; chapter: string;
   pitch: string; premise: string; hp: string; sp: string; money: string; xp: string;
@@ -10,6 +13,11 @@ export interface Skin {
   words: Record<string, string>; phrases: Record<string, string>;
   opening: string; victory: string; defeat: string; clear: string; complete: string;
   recovery: string; ending: string; next: string; themeColor: string;
+  selectorLabel?:string; statsEyebrow?:string; shopEyebrow?:string;
+  terminology?:Record<string,string>; enemyNames?:Record<string,string>;
+  guide?:readonly (readonly [string,string])[];
+  skillNotes?:Record<string,string>;
+  collection?:{name:string; verb:string; entries:readonly WorldFind[]};
 }
 export const SKINS: readonly Skin[] = [
   {
@@ -110,6 +118,7 @@ export const SKINS: readonly Skin[] = [
     opening:'門人との手合わせ', victory:'この試合、勝利', defeat:'この試合、敗北', clear:'師範に勝利した', complete:'四道場の師範に勝利した',
     recovery:'一戦ごとに手当てを受け、HP・SPが全回復。', ending:'四人の師範を破り、帳面に四つの勝利の印を受けた。', next:'次の道場へ', themeColor:'#ece7d9',
   },
+  ACADEMY, LIBRARY,
 ];
 
 const canonicalSkills = ['強斬','鎧砕き','薙ぎ払い','残心','処刑剣','戦意吸収','逆境','三連斬','毒刃','傷刻み','見切り','刈り取り','追撃','血の巡り','盾撃','守りの備え','反撃','蓄勢','解放撃','不退転','城壁','魔弾','応急治療','残火','魔力還流','魔力圧縮','魔力障壁','血の契り'];
@@ -134,11 +143,11 @@ function lexicon(skin: Skin) {
   }:skin.id==='dojo'?{
     'スライム':'稽古人形','毒スライム':'毒仕込みの人形','狼':'山犬使い','盗賊の二人組':'二人の門下生','衛兵と手当て係':'門下生と薬師','毒スライムと狼':'毒人形と山犬使い','俊足の狩人':'俊足の門人','森の祈祷隊':'山の術者たち','石のゴーレム':'石の稽古人形','影の剣士':'黒衣の門人','遺跡の護衛隊':'石垣の門人たち','城門の衛兵':'本家の門下生','妨害の魔術師':'気封じの術者','城の近衛隊':'本家の師範代たち','近衛兵':'師範代','祈祷師':'符術使い','治療師':'薬師','手当て係':'薬師','衛兵':'門下生','盗賊':'忍び',
   }:{'盗賊の二人組':'追いはぎの二人組','盗賊':'追いはぎ'};
-  Object.assign(words,foeNames);
+  Object.assign(words,foeNames,skin.terminology);
   // Names that contain a place or job must be mapped as a whole, not assembled from fragments.
   const foes=['短剣の盗賊','棒持ちの盗賊','草原の衛兵','森の狼','森の衛兵','森の治療師','毒牙の獣','遺跡の衛兵','遺跡の修復者','鉄壁の近衛','疾風の近衛','封印の魔術師'];
   const foeEdition=skin.id==='neon'?['切断アーム機','打撃アーム機','外縁警備機','追跡ドローン','プラント警備機','保守ドローン','腐食ドローン','旧型装甲機','修復ドローン','装甲護衛機','高速護衛機','妨害電装機']:skin.id==='dojo'?['短刀の門人','棒術の門人','青葉の門人','山犬使い','深山の門人','深山の薬師','毒使いの門人','石垣の門人','石垣の薬師','重装の師範代','俊足の師範代','気封じの術者']:['短剣の追いはぎ','棍棒の追いはぎ','丘の衛兵','森の狼','森の衛兵','森の薬師','毒牙の獣','砦の衛兵','砦の修復者','重装の近衛','俊足の近衛','気封じの術師'];
-  Object.assign(words,pairs(foes,foeEdition));
+  Object.assign(words,pairs(foes,foeEdition),skin.enemyNames);
   const pattern=new RegExp(Object.keys(words).sort((a,b)=>b.length-a.length).map(k=>k.replace(/[.*+?^${}()|[\]\\]/g,'\\$&')).join('|'),'g');
   const result={words,pattern};skinLexicons.set(skin.id,result);return result;
 }
@@ -155,9 +164,9 @@ export function worldText(text: string, skin: Skin): string {
     '常時効果は習得すると有効になります。スキル枠へのセットは不要です。':['心得は学ぶだけで身につく。携える技の枠は使わない。','常駐ユニットは解禁時に自動で稼働。接続スロットを消費しない。','心得は修めるだけで身につく。技の枠を用意する必要はない。'],
   };
   const edition=SKINS.indexOf(skin);
-  if(ruleLabels[trimmed])return text.replace(trimmed,ruleLabels[trimmed][edition]);
   // Full sentences are authored for each world, rather than created by changing nouns.
   if(skin.phrases[trimmed])return text.replace(trimmed,skin.phrases[trimmed]);
+  if(ruleLabels[trimmed]?.[edition])return text.replace(trimmed,ruleLabels[trimmed][edition]);
   let narration=text;
   if(skin.id==='neon') narration=narration
     .replace(/^戦闘開始：/,'交戦記録：')
@@ -169,11 +178,24 @@ export function worldText(text: string, skin: Skin): string {
     .replace(/^勝利。(\d+)Gと(\d+)XPを獲得。HP・SPが全回復した。$/,'勝利。報奨$1文、修練$2を得た。手当てを受け、HP・SP全回復。')
     .replace(/を倒した。$/,'に勝った。')
     .replace(/初期XP：40。能力強化とスキル習得に使用できます。/,'修練40から始める。鍛錬にも、技の伝授にも使える。');
+  if(skin.id==='academy') narration=narration
+    .replace(/^戦闘開始：/,'おさわがせ発見：')
+    .replace(/^勝利。(\d+)Gと(\d+)XPを獲得。HP・SPが全回復した。$/,'騒ぎはおしまい！ おこづかい$1枚、ひらめき$2。保健室でHP・SP全回復。')
+    .replace(/を倒した。$/,'は、おとなしくなった。')
+    .replace(/初期XP：40。能力強化とスキル習得に使用できます。/,'入学祝いのひらめき40。まずは授業で魔法を覚えよう。');
+  if(skin.id==='library') narration=narration
+    .replace(/^戦闘開始：/,'書き換え箇所：')
+    .replace(/^勝利。(\d+)Gと(\d+)XPを獲得。HP・SPが全回復した。$/,'本文を復元。蔵書票$1枚、知見$2。閲覧室でHP・SP全回復。')
+    .replace(/^(.+?)：(.+?)に(\d+)ダメージ。$/,'$1：$2のノイズを$3除去。')
+    .replace(/^(.+?)の攻撃：(\d+)ダメージ。$/,'$1の雑音が侵入。余力−$2。')
+    .replace(/を倒した。$/,'が、本来の言葉を取り戻した。')
+    .replace(/初期XP：40。能力強化とスキル習得に使用できます。/,'最初の知見40。論理を鍛えるか、まだ読める言葉を覚えるか。');
   const {words,pattern}=lexicon(skin);
   return narration.replace(pattern,k=>words[k]).replace(/XP/g,skin.xp).replace(/(\d|\s)G\b/g,`$1${skin.money}`);
 }
 
 export function worldGuide(skin: Skin): readonly (readonly [string,string])[] {
+  if(skin.guide)return skin.guide;
   return skin.id==='neon'?[
     ['区画への侵入','区画図の反応を選び、敵機をスキャンする。3交戦を突破すると管理機への回線が開く。通過済みの交戦地点にも再侵入できる。'],
     ['改修と接続','戦闘データは機体の改修とモジュール解禁に使う。4系統を混用可能。起動モジュールは4つのスロットに接続し、常駐ユニットは解禁するだけで稼働する。'],
@@ -202,13 +224,15 @@ export function presentWorld(root: HTMLElement, skin: Skin): void {
   });
 }
 
-export function worldScenery(skin: Skin, stage: number): string {
+export function worldScenery(skin: Skin, stage: number, restored=0): string {
+  if(skin.id==='academy'||skin.id==='library')return storyScenery(skin.id,stage,restored);
   if(skin.id==='journal')return `<svg class="world-art journal-art" viewBox="0 0 400 360" preserveAspectRatio="none" aria-hidden="true"><defs><pattern id="contour" width="90" height="80" patternUnits="userSpaceOnUse"><path d="M-20 40Q20-20 60 30T140 40M-20 52Q20-8 60 42T140 52M-20 64Q20 4 60 54T140 64" fill="none" stroke="currentColor" stroke-width=".6" opacity=".16"/></pattern></defs><rect width="400" height="360" fill="url(#contour)"/><path d="M0 210Q100 180 150 260T400 290" fill="none" stroke="currentColor" stroke-width="14" opacity=".09"/><g fill="none" stroke="currentColor" opacity=".23"><path d="m33 94 12-25 12 25Zm12-7v19m260 150 12-25 12 25Zm12-7v19m-55 5 10-21 10 21Zm10-5v13"/><path d="M285 45v-18h25v18m-29 0h33m-17-16v-13m-15 18v-8m32 8v-8"/><circle cx="52" cy="300" r="22"/><path d="m52 270 6 30-6 30-6-30Zm-30 30h60"/></g><text x="52" y="266" text-anchor="middle" fill="currentColor" font-size="11">N</text><path d="M200 0v360M0 180h400" stroke="currentColor" opacity=".09"/><text x="20" y="24" fill="currentColor" font-size="10" opacity=".5">FIELD NOTES / 0${stage+1}</text></svg>`;
   if(skin.id==='neon')return `<svg class="world-art neon-art" viewBox="0 0 400 360" preserveAspectRatio="none" aria-hidden="true"><defs><pattern id="sector-grid" width="24" height="24" patternUnits="userSpaceOnUse"><path d="M24 0H0V24" fill="none" stroke="currentColor" stroke-width=".5" opacity=".18"/></pattern></defs><rect width="400" height="360" fill="url(#sector-grid)"/><g fill="none" stroke="currentColor" opacity=".27"><path d="M15 15h65l20 20h80v35h70l20-20h110v125h-40v110h-70v55H110v-35H20V190h35V85H15Z"/><path d="M25 25h50m300 0h-50M25 335h50m300 0h-50M200 0v360M0 180h400" stroke-dasharray="3 6"/><rect x="145" y="114" width="75" height="38"/><rect x="28" y="242" width="52" height="30"/><path d="m304 290 15-26 15 26Z"/></g><text x="18" y="43" fill="currentColor" font-size="10" opacity=".7">DEPTH 0${stage+1} // SIGNAL ACTIVE</text><circle class="radar-sweep" cx="297" cy="83" r="38" fill="none" stroke="currentColor" opacity=".12"/></svg>`;
   return `<svg class="world-art dojo-art" viewBox="0 0 400 360" preserveAspectRatio="none" aria-hidden="true"><defs><pattern id="paper-lines" width="400" height="28" patternUnits="userSpaceOnUse"><path d="M0 27h400" stroke="currentColor" opacity=".07"/></pattern></defs><rect width="400" height="360" fill="url(#paper-lines)"/><circle cx="302" cy="78" r="51" fill="currentColor" opacity=".045"/><g fill="none" stroke="currentColor" opacity=".18"><path d="M30 312Q42 198 25 90m13 146 23-30m-25 7-22-35m17 1 27-29m-29 0-16-35m10-4 24-24" stroke-width="4"/><path d="M254 44h90m-80 9h70m-60 0v48m50-48v48M258 74h82" stroke-width="4"/><path d="M80 340h280M100 334h240" stroke-width="2"/></g><text x="375" y="170" fill="currentColor" opacity=".2" font-size="22" writing-mode="tb">手合わせ之図</text><path d="M72 15h260M72 21h260" stroke="currentColor" opacity=".12"/></svg>`;
 }
 
-export function worldFighter(skin: Skin, enemy=false, boss=false, kind=1): string {
+export function worldFighter(skin: Skin, enemy=false, boss=false, kind=1, foeId=''): string {
+  if(skin.id==='academy'||skin.id==='library')return storyFighter(skin.id,enemy,boss,foeId);
   if(skin.id==='journal')return ''; // The original line-drawn traveller belongs to the field journal.
   if(skin.id==='neon')return `<svg viewBox="0 0 140 160" aria-hidden="true" class="machine ${enemy?'hostile':''}"><ellipse cx="70" cy="150" rx="42" ry="5" fill="currentColor" opacity=".15"/><g stroke="currentColor" fill="var(--paper)" stroke-width="2.5" stroke-linejoin="bevel">${enemy&&kind===0&&!boss?'<path d="m22 111 15-35h66l15 35-14 30H36Z"/><path d="M40 92h60M35 124h70"/><circle cx="70" cy="108" r="12"/><path d="m14 104 10 12m102-12-10 12"/>':'<path d="m50 34 8-12h26l8 12-5 27H54Z"/><path d="M58 40h27" stroke-width="5"/><path d="m48 69 40-3 11 42-51 4Z"/><path d="m55 113-11 30h17l11-27m10-3 13 31h17l-15-39M45 75l-20 24 8 22 12-5-5-15 16-15m42-11 15 26 15-10M118 95l10-42-9-16-10 48Z"/><path d="M59 76h20v22H59Z"/>'}${boss?'<path d="m38 29 9-14 12 8 14-17 12 17 13-10 9 21M38 64l-14 13 12 22m68-33 16 12-10 23" stroke-width="4"/>':''}</g></svg>`;
   return `<svg viewBox="0 0 140 160" aria-hidden="true" class="ink-fighter ${enemy?'opponent':''}"><ellipse cx="70" cy="152" rx="40" ry="4" fill="currentColor" opacity=".1"/><g fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><circle cx="70" cy="40" r="16" stroke-width="4"/><path d="M53 37q17-14 34 0M58 27l-5-10m6 8 11-8" stroke-width="5"/><path d="m54 64 29-3 8 39-41 1Zm5 40-18 41m28-41 26 42M52 70l-20 31 13 13m38-45 17 24 13-13" stroke-width="6"/><path d="m108 82 17-45m-23 41 14 7M45 103l48-3" stroke-width="3"/>${boss?'<path d="M48 63l-12 46 18-4m33-44 17 51-16-7M50 55l38 1" stroke-width="4"/>':''}</g><path d="m51 78 34-2-3 22H53Z" fill="var(--accent)" opacity=".6"/></svg>`;

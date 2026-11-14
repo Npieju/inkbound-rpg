@@ -2,6 +2,24 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import { SKINS, getSkin, readSkin, rememberSkin, SKIN_STORAGE_KEY, worldText } from '../src/skins.ts';
 import { SKILLS, ITEMS, newGame, startBattle, act } from '../src/game.ts';
+import { collectionCount } from '../src/collection.ts';
+
+test('finds follow first clears, stay through replays and include every boss',()=>{
+  const game=newGame();assert.equal(collectionCount(game),0);
+  for(let stage=0;stage<4;stage++){
+    game.stage=stage;
+    for(let kills=0;kills<=3;kills++){
+      game.kills=kills;game.phase='victory';assert.equal(collectionCount(game),stage*4+kills);
+      game.phase='defeat';assert.equal(collectionCount(game),stage*4+kills);
+    }
+    game.phase=stage===3?'complete':'clear';assert.equal(collectionCount(game),(stage+1)*4);
+  }
+  for(const world of SKINS.filter(w=>w.collection)){
+    assert.equal(world.collection.entries.length,16);
+    assert.equal(new Set(world.collection.entries.map(e=>e.name)).size,16);
+  }
+  assert.ok(SKINS.find(w=>w.id==='library').collection.entries.every(e=>e.before&&e.before!==e.detail));
+});
 
 test('all worlds cover every skill and item without cascading name substitutions',()=>{
   for(const world of SKINS){
