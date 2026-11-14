@@ -11,11 +11,12 @@ export function build() {
   copyFileSync(resolve(root, 'public/icon.svg'), resolve(root, 'dist/icon.svg'));
   writeFileSync(resolve(root, 'dist/index.html'), readFileSync(resolve(root, 'index.html'), 'utf8').replace('/src/main.ts', './src/main.js'));
   // A dependency-free offline edition. Module names are deliberately unique in this small app.
-  const script = ['game', 'save', 'art', 'main'].map(name => readFileSync(resolve(root, `dist/src/${name}.js`), 'utf8').replace(/^import .+;\r?$/gm, '').replace(/^export /gm, '')).join('\n');
+  const script = ['game', 'save', 'art', 'skins', 'main'].map(name => readFileSync(resolve(root, `dist/src/${name}.js`), 'utf8').replace(/^import .+;\r?$/gm, '').replace(/^export /gm, '')).join('\n');
   const standalone = readFileSync(resolve(root, 'index.html'), 'utf8')
-    .replace('<link rel="stylesheet" href="./src/style.css" />', `<style>${readFileSync(resolve(root, 'src/style.css'), 'utf8')}</style>`)
-    .replace('href="./icon.svg"', `href="data:image/svg+xml;base64,${readFileSync(resolve(root, 'public/icon.svg')).toString('base64')}"`)
-    .replace('<script type="module" src="/src/main.ts"></script>', `<script type="module">${script.replaceAll('</script', '<\\/script')}</script>`);
+    .replace('<link rel="stylesheet" href="./src/style.css" />', () => `<style>${readFileSync(resolve(root, 'src/style.css'), 'utf8')}</style>`)
+    .replace('href="./icon.svg"', () => `href="data:image/svg+xml;base64,${readFileSync(resolve(root, 'public/icon.svg')).toString('base64')}"`)
+    // A function replacement preserves literal $& sequences in JavaScript (e.g. regex escaping).
+    .replace('<script type="module" src="/src/main.ts"></script>', () => `<script type="module">${script.replaceAll('</script', '<\\/script')}</script>`);
   writeFileSync(resolve(root, 'dist/inkbound.html'), standalone);
   console.log('Built dist/ (portable ES modules, no native tools).');
 }
