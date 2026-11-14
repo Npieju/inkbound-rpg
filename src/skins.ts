@@ -179,8 +179,8 @@ export function worldText(text: string, skin: Skin): string {
     .replace(/を倒した。$/,'に勝った。')
     .replace(/初期XP：40。能力強化とスキル習得に使用できます。/,'修練40から始める。鍛錬にも、技の伝授にも使える。');
   if(skin.id==='academy') narration=narration
-    .replace(/^戦闘開始：/,'おさわがせ発見：')
-    .replace(/^勝利。(\d+)Gと(\d+)XPを獲得。HP・SPが全回復した。$/,'騒ぎはおしまい！ おこづかい$1枚、ひらめき$2。保健室でHP・SP全回復。')
+    .replace(/^戦闘開始：/,'遭遇：')
+    .replace(/^勝利。(\d+)Gと(\d+)XPを獲得。HP・SPが全回復した。$/,'戦闘終了。$1コイン、経験$2を得た。休息し、HP・SPが全回復した。')
     .replace(/を倒した。$/,'は、おとなしくなった。')
     .replace(/初期XP：40。能力強化とスキル習得に使用できます。/,'入学祝いのひらめき40。まずは授業で魔法を覚えよう。');
   if(skin.id==='library') narration=narration
