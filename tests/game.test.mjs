@@ -26,7 +26,7 @@ test('barrier triggers retaliation, storage and bounded SP recovery',()=>{
  const g=dummy(prepared(['shieldstrike','riposte','reservoir','fortitude']));
  g.enemy.atk=14;const r=act(g,0,mid);
  assert.ok(r.playerDamage>derived(g).atk*.8);assert.ok(g.stored>0);assert.equal(g.sp,18);
- const stored=g.stored;act(g,'attack',mid);assert.ok(g.log.some(l=>l.includes('を放出')));assert.ok(g.stored<stored+10);
+ const stored=g.stored;act(g,'attack',mid);assert.ok(g.log.some(l=>l.includes('通常攻撃に使用')));assert.ok(g.stored<stored+10);
 });
 test('spells scale with maximum SP and HP casting uses HP, not SP',()=>{
  const g=prepared(['spark','ember']);

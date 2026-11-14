@@ -5,27 +5,136 @@ export type Phase = 'camp' | 'battle' | 'victory' | 'defeat' | 'clear' | 'comple
 export type EquipmentSlot = 'weapon' | 'armor';
 export type Affliction = 'poison' | 'strain';
 export interface Item { id: string; name: string; slot: EquipmentSlot; cost: number; bonus: number; tier: number; description: string; agi?: number; sp?: number; resist?: Affliction }
-export const ITEMS: readonly Item[] = [
-  { id: 'twig', name: '旅人の木剣', slot: 'weapon', cost: 0, bonus: 0, tier: 0, description: '攻撃 +0' },
-  { id: 'iron', name: '鉄の剣', slot: 'weapon', cost: 35, bonus: 5, tier: 1, description: '攻撃 +5' },
-  { id: 'steel', name: '鋼の剣', slot: 'weapon', cost: 110, bonus: 12, tier: 2, description: '攻撃 +12' },
-  { id: 'moon', name: '月影の剣', slot: 'weapon', cost: 260, bonus: 23, tier: 3, description: '攻撃 +23' },
-  { id: 'rapier', name: '風切りの細剣', slot: 'weapon', cost: 100, bonus: 8, agi: 10, tier: 2, description: '攻撃 +8 / AGI +10。命中と回避を補う。' },
-  { id: 'focus-blade', name: '集中の剣', slot: 'weapon', cost: 120, bonus: 9, sp: 14, tier: 2, description: '攻撃 +9 / 最大SP +14。長期戦・全体攻撃に。' },
-  { id: 'cloth', name: '旅人の服', slot: 'armor', cost: 0, bonus: 0, tier: 0, description: '防御 +0' },
-  { id: 'leather', name: '革のベスト', slot: 'armor', cost: 30, bonus: 3, tier: 1, description: '防御 +3' },
-  { id: 'chain', name: '鎖のベスト', slot: 'armor', cost: 95, bonus: 7, tier: 2, description: '防御 +7' },
-  { id: 'rune', name: 'ルーンの外套', slot: 'armor', cost: 220, bonus: 13, tier: 3, description: '防御 +13' },
-  { id: 'venom-vest', name: '解毒のベスト', slot: 'armor', cost: 70, bonus: 3, resist: 'poison', tier: 2, description: '防御 +3 / 毒のダメージを半減。' },
-  { id: 'mind-robe', name: '平静の衣', slot: 'armor', cost: 90, bonus: 4, resist: 'strain', tier: 2, description: '防御 +4 / 術乱の追加SP費用を半減。' },
-  { id: 'swift-coat', name: '疾風のコート', slot: 'armor', cost: 100, bonus: 4, agi: 10, tier: 2, description: '防御 +4 / AGI +10。' },
+export const ITEMS:readonly Item[] = [
+  {
+    "id": "twig",
+    "name": "木剣",
+    "slot": "weapon",
+    "cost": 0,
+    "bonus": 0,
+    "tier": 0,
+    "description": "攻撃力＋0"
+  },
+  {
+    "id": "iron",
+    "name": "鉄の剣",
+    "slot": "weapon",
+    "cost": 35,
+    "bonus": 5,
+    "tier": 1,
+    "description": "攻撃力＋5"
+  },
+  {
+    "id": "steel",
+    "name": "鋼の剣",
+    "slot": "weapon",
+    "cost": 110,
+    "bonus": 12,
+    "tier": 2,
+    "description": "攻撃力＋12"
+  },
+  {
+    "id": "moon",
+    "name": "騎士の剣",
+    "slot": "weapon",
+    "cost": 260,
+    "bonus": 23,
+    "tier": 3,
+    "description": "攻撃力＋23"
+  },
+  {
+    "id": "rapier",
+    "name": "細剣",
+    "slot": "weapon",
+    "cost": 100,
+    "bonus": 8,
+    "agi": 10,
+    "tier": 2,
+    "description": "攻撃力＋8／AGI＋10"
+  },
+  {
+    "id": "focus-blade",
+    "name": "魔力の剣",
+    "slot": "weapon",
+    "cost": 120,
+    "bonus": 9,
+    "sp": 14,
+    "tier": 2,
+    "description": "攻撃力＋9／最大SP＋14"
+  },
+  {
+    "id": "cloth",
+    "name": "布の服",
+    "slot": "armor",
+    "cost": 0,
+    "bonus": 0,
+    "tier": 0,
+    "description": "防御力＋0"
+  },
+  {
+    "id": "leather",
+    "name": "革のベスト",
+    "slot": "armor",
+    "cost": 30,
+    "bonus": 3,
+    "tier": 1,
+    "description": "防御力＋3"
+  },
+  {
+    "id": "chain",
+    "name": "鎖のベスト",
+    "slot": "armor",
+    "cost": 95,
+    "bonus": 7,
+    "tier": 2,
+    "description": "防御力＋7"
+  },
+  {
+    "id": "rune",
+    "name": "ルーンの外套",
+    "slot": "armor",
+    "cost": 220,
+    "bonus": 13,
+    "tier": 3,
+    "description": "防御力＋13"
+  },
+  {
+    "id": "venom-vest",
+    "name": "耐毒のベスト",
+    "slot": "armor",
+    "cost": 70,
+    "bonus": 3,
+    "resist": "poison",
+    "tier": 2,
+    "description": "防御力＋3／毒のダメージ半減"
+  },
+  {
+    "id": "mind-robe",
+    "name": "平静の衣",
+    "slot": "armor",
+    "cost": 90,
+    "bonus": 4,
+    "resist": "strain",
+    "tier": 2,
+    "description": "防御力＋4／SP消費の増加量を半減"
+  },
+  {
+    "id": "swift-coat",
+    "name": "疾風のコート",
+    "slot": "armor",
+    "cost": 100,
+    "bonus": 4,
+    "agi": 10,
+    "tier": 2,
+    "description": "防御力＋4／AGI＋10"
+  }
 ];
 export type Job = 'warrior' | 'rogue' | 'knight' | 'mage';
 export const JOBS = [
- {id:'warrior',name:'戦士',description:'一撃・防御崩し・撃破から次の攻勢へ'},
- {id:'rogue',name:'盗賊',description:'手数・傷・回避と会心をつなぐ'},
- {id:'knight',name:'守護者',description:'防壁・反撃・防いだ力を放出'},
- {id:'mage',name:'魔術師',description:'SPで術を育て、燃焼やHP消費へ分岐'}
+ {id:'warrior',name:'戦士',description:'高威力の単体攻撃、防御低下、全体攻撃。'},
+ {id:'rogue',name:'盗賊',description:'連続攻撃、毒・裂傷、回避・会心。'},
+ {id:'knight',name:'守護者',description:'防壁による軽減、反撃、蓄勢。'},
+ {id:'mage',name:'魔術師',description:'最大SPで強くなる攻撃魔法と回復魔法。'}
 ] as const;
 export interface Skill { id:string; name:string; branch:Job; kind:'active'|'passive'|'variant'; cost:number; sp:number; cd:number; requires:string[]; statRequirements?:Partial<Record<Stat,number>>; summary:string; effect:string; symbol:string; tier:number; column:number }
 export const SKILLS:readonly Skill[] = [
@@ -38,8 +147,8 @@ export const SKILLS:readonly Skill[] = [
     "sp": 4,
     "cd": 1,
     "requires": [],
-    "summary": "単体に攻撃165%",
-    "effect": "攻撃力165%の単体物理攻撃。大きな一発で防御を抜く。",
+    "summary": "単体・威力165%",
+    "effect": "敵1体に、攻撃力の165%を基準とする物理ダメージを与える。",
     "tier": 0,
     "column": 0,
     "symbol": "✦"
@@ -55,8 +164,8 @@ export const SKILLS:readonly Skill[] = [
     "requires": [
       "cleave"
     ],
-    "summary": "攻撃110%＋防御低下",
-    "effect": "強斬の変化技。攻撃110%で攻撃し、防御を35%下げる（4ターン）。",
+    "summary": "威力110%・DEF−35%",
+    "effect": "強斬の派生技。敵1体に威力110%の物理攻撃を行い、DEFを35%下げる。DEF低下は4ターン続く。",
     "tier": 1,
     "column": 0,
     "symbol": "◆"
@@ -72,8 +181,8 @@ export const SKILLS:readonly Skill[] = [
     "requires": [
       "cleave"
     ],
-    "summary": "全体に攻撃105%",
-    "effect": "強斬の変化技。すべての敵に攻撃105%の物理攻撃。",
+    "summary": "全体・威力105%",
+    "effect": "強斬の派生技。敵全体に威力105%の物理攻撃を行う。",
     "tier": 1,
     "column": 1,
     "symbol": "◆"
@@ -89,8 +198,8 @@ export const SKILLS:readonly Skill[] = [
     "requires": [
       "cleave"
     ],
-    "summary": "技の後の通常攻撃を強化",
-    "effect": "攻撃スキル命中後、次の通常攻撃に攻撃65%の追撃とSP2回復を付ける。1回分だけ保持。",
+    "summary": "技の後、通常攻撃に追撃",
+    "effect": "攻撃スキルが命中すると、次の通常攻撃を強化する。その通常攻撃が命中した場合、威力65%の追撃とSP2回復が発動する。効果は重複しない。",
     "tier": 2,
     "column": 0,
     "symbol": "◉"
@@ -106,8 +215,8 @@ export const SKILLS:readonly Skill[] = [
     "requires": [
       "sunder"
     ],
-    "summary": "攻撃240%／瀕死に360%",
-    "effect": "単体に攻撃240%。対象のHPが35%以下なら360%。",
+    "summary": "威力240%・低HPに360%",
+    "effect": "敵1体に威力240%の物理攻撃を行う。敵の残りHPが最大値の35%以下なら、威力が360%になる。",
     "statRequirements": {
       "atk": 26
     },
@@ -126,8 +235,8 @@ export const SKILLS:readonly Skill[] = [
     "requires": [
       "follow"
     ],
-    "summary": "撃破ごとにSP4回収",
-    "effect": "自分の攻撃・継続ダメージ・反撃による撃破でSP4回復。",
+    "summary": "敵を倒すとSP4回復",
+    "effect": "自分の攻撃・反撃・継続ダメージで敵を倒すと、SPが4回復する。",
     "tier": 3,
     "column": 0,
     "symbol": "◉"
@@ -143,8 +252,8 @@ export const SKILLS:readonly Skill[] = [
     "requires": [
       "cleave"
     ],
-    "summary": "HP40%以下で攻撃+30%",
-    "effect": "HPが最大値の40%以下の間、攻撃力が30%上がる。",
+    "summary": "HP40%以下でATK+30%",
+    "effect": "残りHPが最大値の40%以下の間、攻撃力が30%上がる。",
     "tier": 3,
     "column": 1,
     "symbol": "◉"
@@ -158,8 +267,8 @@ export const SKILLS:readonly Skill[] = [
     "sp": 5,
     "cd": 1,
     "requires": [],
-    "summary": "攻撃60%を3回",
-    "effect": "同じ敵に攻撃60%を3回。各命中が傷刻みを発動できる。",
+    "summary": "単体・威力60%×3",
+    "effect": "同じ敵に威力60%の物理攻撃を3回行う。傷刻みを習得している場合、命中ごとに裂傷を付与する。",
     "tier": 0,
     "column": 0,
     "symbol": "✦"
@@ -173,8 +282,8 @@ export const SKILLS:readonly Skill[] = [
     "sp": 4,
     "cd": 1,
     "requires": [],
-    "summary": "攻撃80%＋毒・3T",
-    "effect": "攻撃80%で攻撃し、攻撃力35%+2の毒を3ターン与える。毒は最大3重。",
+    "summary": "威力80%・毒を付与",
+    "effect": "敵1体に威力80%の物理攻撃を行い、毒を付与する。毒は3ターン続き、毎ターン「攻撃力の35%＋2」のダメージを与える。3つまで重なる。",
     "tier": 0,
     "column": 1,
     "symbol": "✦"
@@ -190,8 +299,8 @@ export const SKILLS:readonly Skill[] = [
     "requires": [
       "flurry"
     ],
-    "summary": "物理の各命中で裂傷",
-    "effect": "手動の物理攻撃の各命中で裂傷を1追加。1重につき攻撃力12%（最低2）の防御無視ダメージを3ターン。最大5重。",
+    "summary": "物理攻撃の命中で裂傷",
+    "effect": "通常攻撃か物理スキルが命中するたびに、裂傷を1つ付与する。裂傷は3ターン続き、1つにつき毎ターン攻撃力の12%のダメージを与える（最低2、防御無視）。5つまで重なる。追撃・反撃では発動しない。",
     "tier": 1,
     "column": 0,
     "symbol": "◉"
@@ -207,8 +316,8 @@ export const SKILLS:readonly Skill[] = [
     "requires": [
       "flurry"
     ],
-    "summary": "回避→次の一発が必中会心",
-    "effect": "回避すると、次の手動攻撃の最初の1発が必中・会心になる。保持は1回分。",
+    "summary": "回避後、次の一発が必中会心",
+    "effect": "敵の攻撃を回避すると、次の通常攻撃または攻撃スキルの最初の1発が必中・会心になる。効果は重複しない。",
     "tier": 1,
     "column": 1,
     "symbol": "◉"
@@ -224,8 +333,8 @@ export const SKILLS:readonly Skill[] = [
     "requires": [
       "serration"
     ],
-    "summary": "裂傷を回収＋攻撃80%",
-    "effect": "裂傷を消費し、残る継続ダメージの80%を即時回収。さらに攻撃80%の物理攻撃。",
+    "summary": "裂傷を消費して追加ダメージ",
+    "effect": "敵の裂傷をすべて消費し、残りのターンで与えるはずのダメージの80%を即座に与える。その後、威力80%の物理攻撃を行う。",
     "tier": 2,
     "column": 0,
     "symbol": "✦"
@@ -241,8 +350,8 @@ export const SKILLS:readonly Skill[] = [
     "requires": [
       "foresight"
     ],
-    "summary": "会心→攻撃45%の追撃",
-    "effect": "手動攻撃で会心が出ると攻撃45%の追撃。1行動につき1回。追撃から追撃は発生しない。",
+    "summary": "会心時に威力45%で追撃",
+    "effect": "通常攻撃か攻撃スキルで会心が出ると、威力45%の追撃を行う。発動は1行動につき1回。追撃・反撃では発動しない。",
     "tier": 2,
     "column": 1,
     "symbol": "◉"
@@ -258,8 +367,8 @@ export const SKILLS:readonly Skill[] = [
     "requires": [
       "venomcut"
     ],
-    "summary": "継続ダメージの30%を吸収",
-    "effect": "自分の毒・裂傷・燃焼が実際に与えたダメージの30%をHPに戻す。",
+    "summary": "継続ダメージの30%をHP回復",
+    "effect": "自分が付与した毒・裂傷・燃焼で与えたダメージの30%分、HPが回復する。",
     "tier": 3,
     "column": 0,
     "symbol": "◉"
@@ -273,8 +382,8 @@ export const SKILLS:readonly Skill[] = [
     "sp": 4,
     "cd": 1,
     "requires": [],
-    "summary": "攻撃80%＋防御120%／防壁",
-    "effect": "攻撃力80%+防御力120%で攻撃し、防御力2倍+4の防壁を得る。防壁は直接ダメージを肩代わりする。",
+    "summary": "ATK80%＋DEF120%・防壁",
+    "effect": "敵1体に「攻撃力の80%＋防御力の120%」を基準とする物理ダメージを与え、「防御力の2倍＋4」の防壁を張る。防壁は直接攻撃のダメージを吸収する。",
     "tier": 0,
     "column": 0,
     "symbol": "✦"
@@ -288,8 +397,8 @@ export const SKILLS:readonly Skill[] = [
     "sp": 0,
     "cd": 0,
     "requires": [],
-    "summary": "開始時に防御3倍の防壁",
-    "effect": "戦闘開始時、防御力3倍の防壁を張る。",
+    "summary": "開始時にDEF×3の防壁",
+    "effect": "戦闘開始時に、防御力の3倍の防壁を張る。",
     "tier": 0,
     "column": 1,
     "symbol": "◉"
@@ -306,7 +415,7 @@ export const SKILLS:readonly Skill[] = [
       "shieldstrike"
     ],
     "summary": "防壁で受けると反撃",
-    "effect": "防壁が敵の直接攻撃を吸収すると、攻撃50%+防御150%で反撃。敵の1行動につき1回。",
+    "effect": "防壁が敵の直接攻撃を吸収すると、「攻撃力の50%＋防御力の150%」を基準とする物理攻撃で反撃する。発動は敵の1行動につき1回。",
     "tier": 1,
     "column": 0,
     "symbol": "◉"
@@ -322,8 +431,8 @@ export const SKILLS:readonly Skill[] = [
     "requires": [
       "shieldstrike"
     ],
-    "summary": "軽減した力を通常攻撃へ",
-    "effect": "防御・防壁で防いだ量の半分を蓄積。次の通常攻撃の命中で全放出。上限は防御力6倍。",
+    "summary": "軽減量をためて通常攻撃を強化",
+    "effect": "防御と防壁で軽減したダメージの半分をためる。次の通常攻撃が命中すると、ためた数値をすべて使って攻撃を強化する。上限は防御力の6倍。",
     "tier": 1,
     "column": 1,
     "symbol": "◉"
@@ -339,8 +448,8 @@ export const SKILLS:readonly Skill[] = [
     "requires": [
       "reservoir"
     ],
-    "summary": "全体に攻撃80%＋蓄積70%",
-    "effect": "蓄積をすべて消費し、各敵へ攻撃80%+蓄積70%で攻撃。蓄積が必要。",
+    "summary": "全体攻撃・蓄勢を全消費",
+    "effect": "蓄勢の数値をすべて消費し、敵全体に「攻撃力の80%＋蓄勢の70%」を基準とする物理ダメージを与える。蓄勢が0のときは使えない。",
     "statRequirements": {
       "def": 10
     },
@@ -359,8 +468,8 @@ export const SKILLS:readonly Skill[] = [
     "requires": [
       "riposte"
     ],
-    "summary": "軽減するとSP2回収",
-    "effect": "防御・防壁で直接ダメージを軽減するとSP2回復。自分の1行動につき1回まで。",
+    "summary": "ダメージ軽減時にSP2回復",
+    "effect": "防御か防壁で直接攻撃のダメージを軽減すると、SPが2回復する。発動は自分の1行動につき1回。",
     "tier": 2,
     "column": 0,
     "symbol": "◉"
@@ -376,8 +485,8 @@ export const SKILLS:readonly Skill[] = [
     "requires": [
       "reservoir"
     ],
-    "summary": "防御4倍＋最大SP30%の防壁",
-    "effect": "防御力4倍+最大SP30%の防壁を得る。防壁の総量には最大HPと防御から決まる上限がある。",
+    "summary": "DEFと最大SPに応じた防壁",
+    "effect": "「防御力の4倍＋最大SPの30%」の防壁を張る。防壁の合計は「最大HPの60%＋防御力の2倍」まで。",
     "tier": 3,
     "column": 1,
     "symbol": "✦"
@@ -391,8 +500,8 @@ export const SKILLS:readonly Skill[] = [
     "sp": 4,
     "cd": 1,
     "requires": [],
-    "summary": "最大SPで威力が伸びる術",
-    "effect": "術威力（最大SP70%+4）の単体攻撃。物理より敵の防御の影響が小さい。",
+    "summary": "単体魔法・最大SPで威力上昇",
+    "effect": "敵1体に魔法攻撃を行う。魔法威力は「最大SPの70%＋4」。物理攻撃より敵の防御の影響が小さい。",
     "tier": 0,
     "column": 0,
     "symbol": "✦"
@@ -406,8 +515,8 @@ export const SKILLS:readonly Skill[] = [
     "sp": 6,
     "cd": 2,
     "requires": [],
-    "summary": "HPを16＋最大SP60%回復",
-    "effect": "HPを16+最大SP60%回復する。最大HPへの比例回復や状態治療は行わない。",
+    "summary": "HP回復：16＋最大SPの60%",
+    "effect": "HPを「16＋最大SPの60%」回復する。",
     "tier": 0,
     "column": 1,
     "symbol": "✦"
@@ -423,8 +532,8 @@ export const SKILLS:readonly Skill[] = [
     "requires": [
       "spark"
     ],
-    "summary": "術の命中で燃焼・3T",
-    "effect": "手動の術攻撃が燃焼を1追加。1重につき最大SP12%+2の継続ダメージを3ターン。最大3重。",
+    "summary": "魔法の命中で燃焼を付与",
+    "effect": "攻撃魔法が命中すると、燃焼を1つ付与する。燃焼は3ターン続き、1つにつき毎ターン「最大SPの12%＋2」のダメージを与える。3つまで重なる。",
     "tier": 1,
     "column": 0,
     "symbol": "◉"
@@ -440,8 +549,8 @@ export const SKILLS:readonly Skill[] = [
     "requires": [
       "spark"
     ],
-    "summary": "通常攻撃命中でSP4回収",
-    "effect": "通常攻撃が命中するとSP4回復。残心によるSP回収とも併用できる。",
+    "summary": "通常攻撃命中でSP4回復",
+    "effect": "通常攻撃が命中すると、SPが4回復する。残心のSP回復も同時に発動する。",
     "tier": 1,
     "column": 1,
     "symbol": "◉"
@@ -457,8 +566,8 @@ export const SKILLS:readonly Skill[] = [
     "requires": [
       "spark"
     ],
-    "summary": "術威力220%の単体攻撃",
-    "effect": "魔弾の変化技。術威力220%の大きな一発。高い消費と待機を伴う。",
+    "summary": "単体・魔法威力220%",
+    "effect": "魔弾の派生技。敵1体に魔法威力220%の魔法攻撃を行う。",
     "statRequirements": {
       "sp": 38
     },
@@ -477,8 +586,8 @@ export const SKILLS:readonly Skill[] = [
     "requires": [
       "firstaid"
     ],
-    "summary": "術を使うと防壁を得る",
-    "effect": "攻撃の術を発動すると最大SP15%+2の防壁を得る。命中しなくても発動。",
+    "summary": "攻撃魔法の使用時に防壁",
+    "effect": "攻撃魔法を使うと、「最大SPの15%＋2」の防壁を張る。攻撃が外れても発動する。",
     "tier": 2,
     "column": 1,
     "symbol": "◉"
@@ -494,8 +603,8 @@ export const SKILLS:readonly Skill[] = [
     "requires": [
       "ember"
     ],
-    "summary": "HP12で術威力135%",
-    "effect": "魔弾の変化技。SPの代わりにHP12を払い、術威力135%で攻撃。HP12以下では使用不可。",
+    "summary": "HP12消費・魔法威力135%",
+    "effect": "魔弾の派生技。SPの代わりにHPを12消費し、敵1体に魔法威力135%の魔法攻撃を行う。残りHPが12以下のときは使えない。",
     "statRequirements": {
       "hp": 112
     },
@@ -507,10 +616,10 @@ export const SKILLS:readonly Skill[] = [
 export const item = (id: string) => ITEMS.find(i => i.id === id)!;
 export const skill = (id: string) => SKILLS.find(s => s.id === id)!;
 export const STAGES = [
-  { name: 'はじまりの草原', subtitle: 'THE QUIET MEADOW', color: '#d5dfbf', enemies: ['草むらスライム', '盗賊の二人組', '衛兵と手当て係'], boss: '草原の番人', hp: 30, atk: 7, gold: 15, xp: 14 },
-  { name: 'ささやきの森', subtitle: 'THE WHISPERING WOODS', color: '#9fbaa7', enemies: ['毒の群れ', '俊足の狩人', '森の祈祷隊'], boss: '森の呪術師', hp: 65, atk: 13, gold: 26, xp: 24 },
-  { name: '忘れられた遺跡', subtitle: 'THE FORGOTTEN RUINS', color: '#bbb8bd', enemies: ['石の守り', '影の剣士', '遺跡の護衛隊'], boss: '灰色の騎士', hp: 115, atk: 20, gold: 40, xp: 35 },
-  { name: '夜明けの城門', subtitle: 'THE GATE OF DAWN', color: '#d0ba9c', enemies: ['城門の双衛', '術乱の魔術師', '王の近衛隊'], boss: '夜を継ぐ王', hp: 180, atk: 29, gold: 60, xp: 50 },
+  { name: '草原', color: '#d5dfbf', enemies: ['スライム', '盗賊の二人組', '衛兵と手当て係'], boss: '草原の番人', hp: 30, atk: 7, gold: 15, xp: 14 },
+  { name: '森', color: '#9fbaa7', enemies: ['毒スライムと狼', '俊足の狩人', '森の祈祷隊'], boss: '森の呪術師', hp: 65, atk: 13, gold: 26, xp: 24 },
+  { name: '遺跡', color: '#bbb8bd', enemies: ['石のゴーレム', '影の剣士', '遺跡の護衛隊'], boss: '重装の騎士', hp: 115, atk: 20, gold: 40, xp: 35 },
+  { name: '城門', color: '#d0ba9c', enemies: ['城門の衛兵', '妨害の魔術師', '城の近衛隊'], boss: '城主', hp: 180, atk: 29, gold: 60, xp: 50 },
 ] as const;
 export interface TimedEffect { power:number; turns:number; stacks?:number }
 export interface Effects { attack?:TimedEffect; defense?:TimedEffect; agility?:TimedEffect; poison?:TimedEffect; strain?:TimedEffect; bleed?:TimedEffect; burn?:TimedEffect }
@@ -519,10 +628,10 @@ export interface Enemy { id: string; name: string; hp: number; maxHp: number; at
 interface Foe { id: string; name: string; hp: number; atk: number; def: number; agi: number; style: EnemyStyle; kind?: number }
 const foe = (id: string, name: string, hp: number, atk: number, def: number, agi: number, style: EnemyStyle = 'normal', kind = 1): Foe => ({ id, name, hp, atk, def, agi, style, kind });
 const ROSTERS: readonly (readonly (readonly Foe[])[])[] = [
-  [ [foe('slime', '草むらスライム', 30, 7, 2, 8, 'normal', 0)], [foe('thief-a', '短剣の盗賊', 27, 6, 2, 13), foe('thief-b', '棒持ちの盗賊', 27, 6, 2, 10)], [foe('guard', '草原の衛兵', 48, 9, 12, 8), foe('medic', '手当て係', 28, 4, 1, 8, 'healer')], [foe('warden', '草原の番人', 110, 13, 7, 12, 'brute')] ],
+  [ [foe('slime', 'スライム', 30, 7, 2, 8, 'normal', 0)], [foe('thief-a', '短剣の盗賊', 27, 6, 2, 13), foe('thief-b', '棒持ちの盗賊', 27, 6, 2, 10)], [foe('guard', '草原の衛兵', 48, 9, 12, 8), foe('medic', '手当て係', 28, 4, 1, 8, 'healer')], [foe('warden', '草原の番人', 110, 13, 7, 12, 'brute')] ],
   [ [foe('venom', '毒スライム', 52, 10, 4, 12, 'venom', 0), foe('wolf', '森の狼', 45, 10, 3, 18)], [foe('hunter', '俊足の狩人', 90, 14, 5, 30, 'swift')], [foe('wood-guard', '森の衛兵', 76, 13, 12, 14), foe('wood-medic', '森の治療師', 54, 7, 3, 12, 'healer')], [foe('shaman', '森の呪術師', 145, 15, 8, 18, 'shaman'), foe('fang', '毒牙の獣', 58, 11, 4, 16, 'venom')] ],
-  [ [foe('golem', '石のゴーレム', 125, 18, 26, 8, 'normal', 0)], [foe('shadow', '影の剣士', 140, 19, 8, 35, 'swift')], [foe('ruin-guard', '遺跡の衛兵', 110, 16, 21, 15), foe('ruin-medic', '遺跡の修復者', 75, 9, 6, 12, 'healer')], [foe('knight', '灰色の騎士', 250, 23, 28, 22, 'knight')] ],
-  [ [foe('gate-a', '鉄壁の近衛', 150, 22, 27, 19), foe('gate-b', '疾風の近衛', 115, 19, 9, 34, 'swift')], [foe('seal-mage', '封印の魔術師', 210, 25, 12, 28, 'shaman')], [foe('royal', '王の近衛', 170, 24, 26, 24, 'knight'), foe('priest', '王の祈祷師', 105, 13, 8, 18, 'healer')], [foe('king', '夜を継ぐ王', 340, 30, 24, 30, 'king'), foe('king-medic', '王の治療師', 100, 12, 9, 20, 'healer')] ],
+  [ [foe('golem', '石のゴーレム', 125, 18, 26, 8, 'normal', 0)], [foe('shadow', '影の剣士', 140, 19, 8, 35, 'swift')], [foe('ruin-guard', '遺跡の衛兵', 110, 16, 21, 15), foe('ruin-medic', '遺跡の修復者', 75, 9, 6, 12, 'healer')], [foe('knight', '重装の騎士', 250, 23, 28, 22, 'knight')] ],
+  [ [foe('gate-a', '鉄壁の近衛', 150, 22, 27, 19), foe('gate-b', '疾風の近衛', 115, 19, 9, 34, 'swift')], [foe('seal-mage', '封印の魔術師', 210, 25, 12, 28, 'shaman')], [foe('royal', '近衛兵', 170, 24, 26, 24, 'knight'), foe('priest', '祈祷師', 105, 13, 8, 18, 'healer')], [foe('king', '城主', 340, 30, 24, 30, 'king'), foe('king-medic', '治療師', 100, 12, 9, 20, 'healer')] ],
 ];
 export interface Game {
  version:4; stage:number; kills:number; xp:number; earnedXp:number; gold:number; stats:Record<Stat,number>;
@@ -546,14 +655,14 @@ export function derived(g:Game){
 export const hitChance=(a:number,d:number)=>clamp(.6,.98,.9+(a-d)*.009);
 export function enemyStats(e:Enemy){return {atk:boosted(e.atk,e.effects.attack),def:boosted(e.def,e.effects.defense),agi:boosted(e.agi,e.effects.agility)};}
 export function enemyHint(e:Pick<Enemy,'style'>):string{
- return ({normal:'通常攻撃で戦う',brute:'HPが減ると攻撃を強化',healer:'傷ついた仲間を最大3回回復',swift:'高いAGI。こちらのAGIを下げる',venom:'命中時に毒を付与。毒は3ターン続く',shaman:'術乱を付与：技の消費SPが2増える',knight:'高い防御。こちらの攻撃を下げる',king:'仲間の死を吸収し強化。術乱・攻撃低下を使う'})[e.style];
+ return ({normal:'通常攻撃を使う。',brute:'HPが60%未満になると攻撃力を上げる。',healer:'自分か仲間のHPを回復する。回復は3回まで。',swift:'AGIが高く、こちらのAGIを下げる。',venom:'攻撃が当たると毒を付与する。毒は3ターン続く。',shaman:'2ターンの間、スキルの消費SPを2増やす。',knight:'DEFが高く、こちらの攻撃力を下げる。',king:'仲間が倒れると1ターン使って攻撃力を上げる。こちらの消費SPを増やし、攻撃力も下げる。'})[e.style];
 }
 export function encounterPreview(stage:number,encounter:number,boss=false):Enemy[]{
  const roster=ROSTERS[stage]?.[boss?3:encounter];if(!roster)return [];
  return roster.map((f,i)=>({...f,id:`${f.id}-${i}`,maxHp:f.hp,boss:boss&&i===0,kind:f.kind??1,turn:0,effects:{},abilities:{},heals:3}));
 }
 export function newGame():Game{
- return {version:4,stage:0,kills:0,xp:40,earnedXp:0,gold:20,stats:{hp:0,sp:0,atk:0,def:0,agi:0},hp:70,sp:20,potions:3,ethers:1,remedies:2,weapon:'twig',armor:'cloth',owned:['twig','cloth'],phase:'camp',enemy:null,enemies:[],target:0,cooldowns:[0,0,0,0],effects:{},barrier:0,stored:0,readyCrit:false,followReady:false,log:['4つの系統を自由に組み合わせよう。技は4枠、常時効果は習得で有効。'],totalKills:0,learned:[],slots:[null,null,null,null]};
+ return {version:4,stage:0,kills:0,xp:40,earnedXp:0,gold:20,stats:{hp:0,sp:0,atk:0,def:0,agi:0},hp:70,sp:20,potions:3,ethers:1,remedies:2,weapon:'twig',armor:'cloth',owned:['twig','cloth'],phase:'camp',enemy:null,enemies:[],target:0,cooldowns:[0,0,0,0],effects:{},barrier:0,stored:0,readyCrit:false,followReady:false,log:['初期XP：40。能力強化とスキル習得に使用できます。'],totalKills:0,learned:[],slots:[null,null,null,null]};
 }
 function note(g:Game,s:string){g.log.unshift(s);g.log=g.log.slice(0,20);}
 export function meetsStats(g:Game,s:Skill):boolean{return Object.entries(s.statRequirements??{}).every(([k,n])=>baseStats(g)[k as Stat]>=n);}
@@ -568,7 +677,7 @@ export function learn(g:Game,id:string):boolean{
  if(!canLearn(g,id))return false;const s=skill(id);g.xp-=s.cost;g.learned.push(id);
  const empty=g.slots.indexOf(null);
  if(s.kind!=='passive'&&empty>=0)g.slots[empty]=id;
- note(g,`${s.name}を習得。${s.kind==='passive'?'常時効果が有効になった。':empty>=0?`枠${empty+1}にセット。`:'編成からセットできる。'}`);return true;
+ note(g,`${s.name}を習得。${s.kind==='passive'?'常時効果が有効になった。':empty>=0?`スキル枠${empty+1}にセットした。`:'編成画面でセットできる。'}`);return true;
 }
 export function equipSkill(g:Game,slot:number,id:string|null):boolean{
  if(g.phase==='battle'||!Number.isInteger(slot)||slot<0||slot>3||(id!==null&&(!g.learned.includes(id)||skill(id).kind==='passive')))return false;
@@ -577,7 +686,7 @@ export function equipSkill(g:Game,slot:number,id:string|null):boolean{
 export function respec(g:Game):boolean{
  if(g.phase==='battle')return false;
  g.xp+=Object.values(g.stats).reduce((sum,n)=>sum+8*n+5*n*(n-1)/2,0)+g.learned.reduce((sum,id)=>sum+skill(id).cost,0);
- g.stats={hp:0,sp:0,atk:0,def:0,agi:0};g.learned=[];g.slots=[null,null,null,null];recover(g);note(g,'能力とスキルの費用をXPへ戻した。');return true;
+ g.stats={hp:0,sp:0,atk:0,def:0,agi:0};g.learned=[];g.slots=[null,null,null,null];recover(g);note(g,'能力強化とスキル習得に使ったXPがすべて戻った。');return true;
 }
 export function equip(g:Game,id:string):boolean{const e=ITEMS.find(i=>i.id===id);if(g.phase==='battle'||!e||!g.owned.includes(id))return false;g[e.slot]=id;recover(g);return true;}
 export function buy(g:Game,id:string):boolean{
@@ -585,7 +694,7 @@ export function buy(g:Game,id:string):boolean{
  const c=({potion:['potions',10],ether:['ethers',15],remedy:['remedies',12]} as const)[id as 'potion'|'ether'|'remedy'];
  if(c){const[k,cost]=c;if(g.gold<cost||g[k]>=9)return false;g.gold-=cost;g[k]++;return true;}
  const next=ITEMS.find(i=>i.id===id);if(!next||g.owned.includes(id)||g.gold<next.cost)return false;
- g.gold-=next.cost;g.owned.push(id);equip(g,id);note(g,`${next.name}を購入して装備した。`);return true;
+ g.gold-=next.cost;g.owned.push(id);equip(g,id);note(g,`${next.name}を購入し、装備した。`);return true;
 }
 function recover(g:Game){g.effects={};g.barrier=0;g.stored=0;g.readyCrit=false;g.followReady=false;g.hp=derived(g).maxHp;g.sp=derived(g).maxSp;}
 export function skillCost(g:Game,s:Skill):number{
@@ -595,10 +704,10 @@ export function skillCost(g:Game,s:Skill):number{
 export function skillBlockReason(g:Game,slot:number):string{
  const id=g.slots[slot],s=id?skill(id):null;
  if(!s)return '未セット';
- if(g.cooldowns[slot]>0)return `あと${g.cooldowns[slot]}T`;
- if(s.id==='bloodcast'&&g.hp<=12)return 'HPが足りない';
- if(s.id==='shockwave'&&g.stored===0)return '蓄積が必要';
- if(g.sp<skillCost(g,s))return `SP不足（${skillCost(g,s)}）`;
+ if(g.cooldowns[slot]>0)return `あと${g.cooldowns[slot]}ターン`;
+ if(s.id==='bloodcast'&&g.hp<=12)return 'HP不足（必要13以上）';
+ if(s.id==='shockwave'&&g.stored===0)return '蓄勢が必要';
+ if(g.sp<skillCost(g,s))return `SP不足（必要${skillCost(g,s)}）`;
  return '';
 }
 export function selectTarget(g: Game, index: number): boolean {
@@ -612,21 +721,21 @@ export function startBattle(g: Game, boss = false, encounter?: number): boolean 
   if (!Number.isInteger(index) || index < 0 || index > 2 || index > g.kills) return false;
   g.enemies = encounterPreview(g.stage, index, boss); if (!g.enemies.length) return false;
   recover(g); g.target = 0; g.enemy = g.enemies[0]; g.phase = 'battle'; g.cooldowns = [0, 0, 0, 0]; if(g.learned.includes('brace'))g.barrier=derived(g).def*3;
-  note(g, `${boss ? STAGES[g.stage].boss : STAGES[g.stage].enemies[index]}との戦闘。${g.enemies.length}体の敵！`);
+  note(g, `戦闘開始：${boss ? STAGES[g.stage].boss : STAGES[g.stage].enemies[index]}（敵${g.enemies.length}体）。`);
   // Encounter index is independent of the character's visual kind.
   g.enemies.forEach(e => e.abilities.encounter = index); return true;
 }
 export function nextStage(g: Game): boolean {
   if (g.phase !== 'clear') return false;
   g.stage++; g.kills = 0; g.phase = 'camp'; g.enemy = null; g.enemies = []; recover(g);
-  g.potions = Math.min(9, g.potions + 1); note(g, `${STAGES[g.stage].name}へ。ポーション +1。`); return true;
+  g.potions = Math.min(9, g.potions + 1); note(g, `${STAGES[g.stage].name}に進んだ。ポーションを1個入手した。`); return true;
 }
 function award(g: Game) {
   const boss = g.enemies.some(e => e.boss), s = STAGES[g.stage], gold = s.gold * (boss ? 4 : 1), xp = s.xp * (boss ? 3 : 1);
   g.gold += gold; g.xp += xp; g.earnedXp += xp; g.totalKills += g.enemies.length;
   if (boss) g.phase = g.stage === STAGES.length - 1 ? 'complete' : 'clear';
   else { g.kills = Math.max(g.kills, (g.enemies[0].abilities.encounter ?? 0) + 1); g.phase = 'victory'; }
-  recover(g); note(g, `勝利！ +${gold} G / +${xp} XP。HP・SP全回復。`);
+  recover(g); note(g, `勝利。${gold}Gと${xp}XPを獲得。HP・SPが全回復した。`);
 }
 function effect(e:Effects,k:keyof Effects,power:number,turns:number){e[k]={power,turns};}
 function addDot(e:Effects,k:'bleed'|'burn'|'poison',power:number,stacks=1,max=5){
@@ -634,7 +743,11 @@ function addDot(e:Effects,k:'bleed'|'burn'|'poison',power:number,stacks=1,max=5)
 }
 function tick(e:Effects){for(const k of Object.keys(e) as (keyof Effects)[])if(--e[k]!.turns<=0)delete e[k];}
 export function statusLabels(e:Effects):string[]{
- return (Object.keys(e) as (keyof Effects)[]).map(k=>`${({attack:'攻',defense:'防',agility:'速',poison:'毒',strain:'術乱',bleed:'傷',burn:'燃'})[k]}${['attack','defense','agility'].includes(k)?e[k]!.power>0?'↑':'↓':(e[k]!.stacks??1)>1?'×'+e[k]!.stacks+'・':''}${e[k]!.turns}T`);
+ return (Object.keys(e) as (keyof Effects)[]).map(k=>{
+  const v=e[k]!,label=({attack:'攻撃',defense:'防御',agility:'AGI',poison:'毒',strain:'SP消費増',bleed:'裂傷',burn:'燃焼'})[k];
+  const value=['attack','defense','agility'].includes(k)?v.power>0?'↑':'↓':(v.stacks??1)>1?'×'+v.stacks:'';
+  return `${label}${value}（${v.turns}T）`;
+ });
 }
 export interface TurnResult {playerDamage:number;enemyDamage:number;critical:boolean;dodged:boolean;healed:number;escaped:boolean;hits:number;misses:number}
 export function act(g:Game,action:Action,rng:()=>number=Math.random):TurnResult|null{
@@ -644,15 +757,15 @@ export function act(g:Game,action:Action,rng:()=>number=Math.random):TurnResult|
  if((action==='potion'&&!g.potions)||(action==='ether'&&!g.ethers)||(action==='remedy'&&!g.remedies))return null;
  const r:TurnResult={playerDamage:0,enemyDamage:0,critical:false,dodged:false,healed:0,escaped:false,hits:0,misses:0};
  const has=(id:string)=>g.learned.includes(id);
- const gainSp=(n:number)=>{const amount=Math.min(n,derived(g).maxSp-g.sp);g.sp+=amount;if(amount>0)note(g,`SPを${amount}回収。`);};
+ const gainSp=(n:number)=>{const amount=Math.min(n,derived(g).maxSp-g.sp);g.sp+=amount;if(amount>0)note(g,`SPが${amount}回復した。`);};
  const heal=(n:number)=>{const amount=Math.min(Math.ceil(n),derived(g).maxHp-g.hp);g.hp+=amount;r.healed+=amount;return amount;};
  const shield=(n:number)=>{g.barrier=Math.min(Math.ceil(derived(g).maxHp*.6+derived(g).def*2),g.barrier+Math.ceil(n));};
  const killed=new Set<string>();let anyCritical=false,manualHits=0,fortitudeUsed=false;
  const markKill=(e:Enemy)=>{if(e.hp<=0&&!killed.has(e.id)){killed.add(e.id);note(g,`${e.name}を倒した。`);if(has('battleflow'))gainSp(4);}};
- const damage=(e:Enemy,base:number,physical:boolean,manual=true,armorFactor=physical?.5:.25):number=>{
+ const damage=(e:Enemy,base:number,physical:boolean,manual=true,armorFactor=physical?.5:.25,label=manual?(s?.name??'通常攻撃'):'追撃'):number=>{
    if(e.hp<=0)return 0;
    const d=derived(g),es=enemyStats(e),sure=manual&&g.readyCrit;
-   if(!sure&&rng()>=hitChance(d.agi,es.agi)){r.misses++;note(g,`${e.name}に当たらなかった。`);return 0;}
+   if(!sure&&rng()>=hitChance(d.agi,es.agi)){r.misses++;note(g,`${e.name}への攻撃が外れた。`);return 0;}
    const critical=sure||rng()<d.crit;if(sure)g.readyCrit=false;
    const n=Math.max(1,Math.round((base*(critical?1.65:1)-es.def*armorFactor)*(.95+rng()*.1)));
    const actual=Math.min(e.hp,n);e.hp-=actual;r.playerDamage+=actual;r.hits++;r.critical||=critical;
@@ -660,7 +773,7 @@ export function act(g:Game,action:Action,rng:()=>number=Math.random):TurnResult|
      if(physical&&has('serration')&&e.hp>0)addDot(e.effects,'bleed',Math.max(2,Math.ceil(d.atk*.12)));
      if(!physical&&has('ember')&&e.hp>0)addDot(e.effects,'burn',Math.ceil(d.maxSp*.12+2),1,3);
    }
-   note(g,`${s&&manual?s.name:manual?'通常攻撃':'追撃・反撃'}${critical?'・会心':''} → ${e.name}に${actual}。`);markKill(e);return actual;
+   note(g,`${label}${critical?'（会心）':''}：${e.name}に${actual}ダメージ。`);markKill(e);return actual;
  };
  const finish=()=>{if(g.enemies.every(e=>e.hp<=0)){award(g);return true;}retarget(g);return false;};
  g.cooldowns=g.cooldowns.map(c=>Math.max(0,c-1));
@@ -670,17 +783,17 @@ export function act(g:Game,action:Action,rng:()=>number=Math.random):TurnResult|
    const bank=has('reservoir')?g.stored:0,follow=g.followReady;g.followReady=false;
    damage(target,derived(g).atk+bank,true);
    if(manualHits>0){
-     if(bank){g.stored=0;note(g,`蓄積${bank}を放出。`);}
-     if(follow){if(target.hp>0)damage(target,derived(g).atk*.65,true,false);gainSp(2);}
+     if(bank){g.stored=0;note(g,`蓄勢${bank}を通常攻撃に使用した。`);}
+     if(follow){if(target.hp>0)damage(target,derived(g).atk*.65,true,false,.5,'残心');gainSp(2);}
      if(has('meditation'))gainSp(4);
    }
- }else if(action==='potion'){g.potions--;note(g,`ポーションでHP+${heal(derived(g).maxHp*.5)}。`);}
+ }else if(action==='potion'){g.potions--;note(g,`ポーションでHPが${heal(derived(g).maxHp*.5)}回復した。`);}
  else if(action==='ether'){g.ethers--;gainSp(Math.ceil(derived(g).maxSp*.5));}
- else if(action==='remedy'){g.remedies--;delete g.effects.poison;delete g.effects.strain;note(g,'治療薬で毒・術乱を解除。');}
+ else if(action==='remedy'){g.remedies--;delete g.effects.poison;delete g.effects.strain;note(g,'治療薬で毒・SP消費増加を解除した。');}
  else if(action==='run'){
    const fastest=Math.max(...g.enemies.filter(e=>e.hp>0).map(e=>enemyStats(e).agi));
-   if(rng()<clamp(.3,.9,.65+(derived(g).agi-fastest)*.015)){r.escaped=true;g.phase='camp';recover(g);g.enemy=null;g.enemies=[];note(g,'逃走。報酬・進行なし。HP・SP全回復。');return r;}
-   note(g,'逃走に失敗。');
+   if(rng()<clamp(.3,.9,.65+(derived(g).agi-fastest)*.015)){r.escaped=true;g.phase='camp';recover(g);g.enemy=null;g.enemies=[];note(g,'逃走した。報酬はなし。HP・SPが全回復した。');return r;}
+   note(g,'逃走に失敗した。');
  }else if(s){
    const d=derived(g);
    switch(s.id){
@@ -694,16 +807,16 @@ export function act(g:Game,action:Action,rng:()=>number=Math.random):TurnResult|
       const dot=target.effects.bleed;
       const cash=dot?Math.ceil(dot.power*(dot.stacks??1)*dot.turns*.8):0;
       delete target.effects.bleed;
-      if(cash){const actual=Math.min(target.hp,cash);target.hp-=actual;r.playerDamage+=actual;note(g,`裂傷を刈り取り${actual}ダメージ。`);markKill(target);}
+      if(cash){const actual=Math.min(target.hp,cash);target.hp-=actual;r.playerDamage+=actual;note(g,`刈り取り：裂傷を消費し、${actual}ダメージ。`);markKill(target);}
       damage(target,d.atk*.8,true);break;
     }
-    case 'shieldstrike':damage(target,d.atk*.8+d.def*1.2,true);shield(d.def*2+4);note(g,`防壁${g.barrier}を展開。`);break;
-    case 'shockwave':{const bank=g.stored;g.stored=0;for(const e of g.enemies)damage(e,d.atk*.8+bank*.7,true);note(g,`蓄積${bank}を解放。`);break;}
-    case 'aegis':shield(d.def*4+d.maxSp*.3);note(g,`城壁を展開。防壁${g.barrier}。`);break;
+    case 'shieldstrike':damage(target,d.atk*.8+d.def*1.2,true);shield(d.def*2+4);note(g,`防壁が${g.barrier}になった。`);break;
+    case 'shockwave':{const bank=g.stored;g.stored=0;for(const e of g.enemies)damage(e,d.atk*.8+bank*.7,true);note(g,`解放撃で蓄勢${bank}を消費した。`);break;}
+    case 'aegis':shield(d.def*4+d.maxSp*.3);note(g,`城壁で防壁が${g.barrier}になった。`);break;
     case 'spark':damage(target,d.spell,false);break;
     case 'overload':damage(target,d.spell*2.2,false);break;
     case 'bloodcast':damage(target,d.spell*1.35,false);break;
-    case 'firstaid':note(g,`応急治療でHP+${heal(16+d.maxSp*.6)}。`);break;
+    case 'firstaid':note(g,`応急治療でHPが${heal(16+d.maxSp*.6)}回復した。`);break;
    }
    if(['spark','overload','bloodcast'].includes(s.id)&&has('spellward'))shield(d.maxSp*.15+2);
  }
@@ -718,8 +831,8 @@ export function act(g:Game,action:Action,rng:()=>number=Math.random):TurnResult|
    for(const key of ['bleed','burn','poison'] as const){
      const dot=enemy.effects[key];if(!dot||enemy.hp<=0)continue;
      const n=Math.min(enemy.hp,Math.ceil(dot.power*(dot.stacks??1)));enemy.hp-=n;r.playerDamage+=n;
-     note(g,`${enemy.name}に${key==='bleed'?'裂傷':key==='burn'?'燃焼':'毒'}${n}。`);
-     if(has('siphon')){const nHeal=heal(n*.3);if(nHeal)note(g,`血の巡りでHP+${nHeal}。`);}
+     note(g,`${enemy.name}が${key==='bleed'?'裂傷':key==='burn'?'燃焼':'毒'}で${n}ダメージを受けた。`);
+     if(has('siphon')){const nHeal=heal(n*.3);if(nHeal)note(g,`血の巡りでHPが${nHeal}回復した。`);}
      markKill(enemy);
    }
    if(enemy.hp<=0)continue;
@@ -728,14 +841,14 @@ export function act(g:Game,action:Action,rng:()=>number=Math.random):TurnResult|
    const wounded=[...alive].sort((a,b)=>a.hp/a.maxHp-b.hp/b.maxHp)[0];
    if(enemy.style==='king'){
      const dead=g.enemies.filter(e=>e!==enemy&&e.hp<=0).length;
-     if(dead>(enemy.abilities.absorbed??0)){enemy.abilities.absorbed=dead;effect(enemy.effects,'attack',.4,5);note(g,'王が倒れた仲間の力を吸収した。');continue;}
+     if(dead>(enemy.abilities.absorbed??0)){enemy.abilities.absorbed=dead;effect(enemy.effects,'attack',.4,5);note(g,'城主が倒れた仲間を吸収し、攻撃力を上げた。');continue;}
    }
-   if(enemy.style==='healer'&&enemy.heals>0&&wounded.hp<wounded.maxHp*.75){const n=Math.min(wounded.maxHp-wounded.hp,Math.ceil(wounded.maxHp*.35));wounded.hp+=n;enemy.heals--;note(g,`${enemy.name}が${wounded.name}を${n}回復。`);continue;}
-   if(['brute','king'].includes(enemy.style)&&enemy.hp<enemy.maxHp*.6&&!enemy.effects.attack&&!enemy.abilities.rage){effect(enemy.effects,'attack',.4,4);enemy.abilities.rage=6;note(g,`${enemy.name}が攻撃を強化。`);continue;}
-   if(['shaman','king'].includes(enemy.style)&&!g.effects.strain&&!enemy.abilities.strain){enemy.abilities.strain=5;effect(g.effects,'strain',2,3);note(g,`${enemy.name}の術乱。2行動の間、技の追加SP費用。`);continue;}
-   if(['knight','king'].includes(enemy.style)&&!enemy.abilities.weaken&&(!g.effects.attack||g.effects.attack.power>0)){effect(g.effects,'attack',-.35,4);enemy.abilities.weaken=5;note(g,`${enemy.name}がこちらの攻撃を下げた。`);continue;}
+   if(enemy.style==='healer'&&enemy.heals>0&&wounded.hp<wounded.maxHp*.75){const n=Math.min(wounded.maxHp-wounded.hp,Math.ceil(wounded.maxHp*.35));wounded.hp+=n;enemy.heals--;note(g,`${enemy.name}が${wounded.name}のHPを${n}回復した。`);continue;}
+   if(['brute','king'].includes(enemy.style)&&enemy.hp<enemy.maxHp*.6&&!enemy.effects.attack&&!enemy.abilities.rage){effect(enemy.effects,'attack',.4,4);enemy.abilities.rage=6;note(g,`${enemy.name}の攻撃力が上がった。`);continue;}
+   if(['shaman','king'].includes(enemy.style)&&!g.effects.strain&&!enemy.abilities.strain){enemy.abilities.strain=5;effect(g.effects,'strain',2,3);note(g,`${enemy.name}の妨害。2ターンの間、スキルの消費SPが${item(g.armor).resist==='strain'?1:2}増える。`);continue;}
+   if(['knight','king'].includes(enemy.style)&&!enemy.abilities.weaken&&(!g.effects.attack||g.effects.attack.power>0)){effect(g.effects,'attack',-.35,4);enemy.abilities.weaken=5;note(g,`${enemy.name}がこちらの攻撃力を下げた。`);continue;}
    if(enemy.style==='swift'&&!enemy.abilities.slow&&!g.effects.agility){effect(g.effects,'agility',-.35,4);enemy.abilities.slow=5;note(g,`${enemy.name}がこちらのAGIを下げた。`);continue;}
-   if(rng()>=hitChance(es.agi,derived(g).agi)){r.dodged=true;if(has('foresight'))g.readyCrit=true;note(g,`${enemy.name}の攻撃を回避。${g.readyCrit?'見切り！次の一発が必中会心。':''}`);continue;}
+   if(rng()>=hitChance(es.agi,derived(g).agi)){r.dodged=true;if(has('foresight'))g.readyCrit=true;note(g,`${enemy.name}の攻撃を回避した。${g.readyCrit?'見切り：次の一発が必中・会心。':''}`);continue;}
    const beforeArmor=Math.max(1,es.atk),afterArmor=Math.max(1,Math.round(beforeArmor-derived(g).def*.65));
    const absorbed=Math.min(g.barrier,afterArmor);g.barrier-=absorbed;
    const hpDamage=afterArmor-absorbed;g.hp=Math.max(0,g.hp-hpDamage);r.enemyDamage+=hpDamage;
@@ -744,13 +857,13 @@ export function act(g:Game,action:Action,rng:()=>number=Math.random):TurnResult|
      if(has('reservoir'))g.stored=Math.min(derived(g).def*6,g.stored+Math.ceil(prevented*.5));
      if(has('fortitude')&&!fortitudeUsed){gainSp(2);fortitudeUsed=true;}
    }
-   note(g,`${enemy.name}の攻撃。${hpDamage}ダメージ${absorbed?`／防壁が${absorbed}吸収`:''}。`);
+   note(g,`${enemy.name}の攻撃：${hpDamage}ダメージ${absorbed?`（防壁が${absorbed}吸収）`:''}。`);
    if(enemy.style==='venom'&&!g.effects.poison&&g.hp>0){const resist=item(g.armor).resist==='poison'?.5:1;effect(g.effects,'poison',Math.ceil(derived(g).maxHp*.06*resist),3);note(g,'毒を受けた。');}
-   if(absorbed>0&&has('riposte')&&g.hp>0)damage(enemy,derived(g).atk*.5+derived(g).def*1.5,true,false);
+   if(absorbed>0&&has('riposte')&&g.hp>0)damage(enemy,derived(g).atk*.5+derived(g).def*1.5,true,false,.5,'反撃');
  }
- if(g.effects.poison&&g.hp>0){const n=Math.min(g.hp,Math.ceil(g.effects.poison.power));g.hp-=n;r.enemyDamage+=n;note(g,`毒で${n}ダメージ。`);}
+ if(g.effects.poison&&g.hp>0){const n=Math.min(g.hp,Math.ceil(g.effects.poison.power));g.hp-=n;r.enemyDamage+=n;note(g,`毒で${n}ダメージを受けた。`);}
  tick(g.effects);g.enemies.forEach(e=>tick(e.effects));
- if(g.hp<=0){g.phase='defeat';recover(g);note(g,'敗北。HP・SP全回復。育成と編成を変えて再挑戦できる。');}
+ if(g.hp<=0){g.phase='defeat';recover(g);note(g,'敗北した。HP・SPが全回復し、マップに戻った。');}
  else finish();
  return r;
 }

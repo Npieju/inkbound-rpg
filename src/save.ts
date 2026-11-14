@@ -25,7 +25,7 @@ export function decodeSave(raw:string|null):Game|null{
    g.weapon=v.weapon;g.armor=v.armor;g.owned=[...new Set<string>(v.owned)];g.learned=[...v.learned];g.slots=[...v.slots];
    if(!g.learned.every(id=>meetsStats(g,SKILLS.find(s=>s.id===id)!)))return null;
    g.phase=v.phase==='battle'?'camp':v.phase;g.log=[...v.log];
-   if(v.phase==='battle')g.log.unshift('戦闘を中断し、マップに戻った。');
+   if(v.phase==='battle')g.log.unshift('中断した戦闘からマップに戻った。HP・SPが全回復した。');
    g.log=g.log.slice(0,20);g.hp=derived(g).maxHp;g.sp=derived(g).maxSp;return g;
  }catch{return null;}
 }
