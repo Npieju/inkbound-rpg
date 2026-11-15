@@ -238,7 +238,7 @@ export const ACADEMY:Skin = {
   "recovery": "探索の合間に休息。戦闘後はHP・SPが全回復。",
   "ending": "時計は動き、みんなのお皿におやつが戻った。ミルフィも今日は、配る係。",
   "next": "つぎの校舎へ",
-  "themeColor": "#fff0e8",
+  "themeColor": "#67516f",
   "guide": [
     [
       "放課後の約束",
