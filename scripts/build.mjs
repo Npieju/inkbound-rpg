@@ -12,7 +12,7 @@ export function build() {
   copyFileSync(resolve(root, 'public/icon.svg'), resolve(root, 'dist/icon.svg'));
   writeFileSync(resolve(root, 'dist/index.html'), readFileSync(resolve(root, 'index.html'), 'utf8').replace('/src/main.ts', './src/main.js'));
   // A dependency-free offline edition. Module names are deliberately unique in this small app.
-  const script = ['game', 'save', 'art', 'illustrated', 'storybook', 'storybook-art', 'collection', 'skins', 'main'].map(name => readFileSync(resolve(root, `dist/src/${name}.js`), 'utf8').replace(/^import .+;\r?$/gm, '').replace(/^export /gm, '')).join('\n');
+  const script = ['game', 'save', 'art', 'illustrated', 'game-ui-art', 'storybook', 'storybook-art', 'collection', 'skins', 'main'].map(name => readFileSync(resolve(root, `dist/src/${name}.js`), 'utf8').replace(/^import .+;\r?$/gm, '').replace(/^export /gm, '')).join('\n');
   const portableScript = ['academy','library'].reduce((code,name)=>code.replaceAll('./characters/'+name+'.svg','data:image/svg+xml;base64,'+readFileSync(resolve(root,'public/characters/'+name+'.svg')).toString('base64')),script);
   const standalone = readFileSync(resolve(root, 'index.html'), 'utf8')
     .replace('<link rel="stylesheet" href="./src/style.css" />', () => `<style>${readFileSync(resolve(root, 'src/style.css'), 'utf8')}</style>`)
